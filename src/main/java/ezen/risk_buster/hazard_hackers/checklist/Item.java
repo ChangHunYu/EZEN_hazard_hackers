@@ -24,4 +24,12 @@ public class Item extends BaseEntity {
 
     @Column(nullable = false)
     private Boolean isChecked;
+
+    public Item(Object o, Checklist checklist, String description, boolean b) {
+
+    }
+
+    public static Object builder() {
+        return null;
+    }
 }

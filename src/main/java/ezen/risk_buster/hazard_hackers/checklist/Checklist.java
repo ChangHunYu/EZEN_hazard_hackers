@@ -3,8 +3,10 @@ package ezen.risk_buster.hazard_hackers.checklist;
 import ezen.risk_buster.hazard_hackers.common.BaseEntity;
 import ezen.risk_buster.hazard_hackers.user.User;
 import jakarta.persistence.*;
+import jdk.jshell.Snippet;
 import lombok.*;
 
+import java.sql.ConnectionBuilder;
 import java.util.List;
 
 @Entity
@@ -27,4 +29,9 @@ public class Checklist extends BaseEntity {
 
     @OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Item> items;
+
+    public Checklist(User user, String title) {
+    }
+
+
 }
