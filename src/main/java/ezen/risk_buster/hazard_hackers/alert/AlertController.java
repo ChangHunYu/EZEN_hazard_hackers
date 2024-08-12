@@ -25,15 +25,22 @@ public class AlertController {
 
     @GetMapping
     public ResponseEntity<List<AlertResponseDto>> findAll() {
-        List<AlertResponseDto> responseDtos = alertService.findAll();
+        List<AlertResponseDto> alertResponseDtos = alertService.findAll();
 
-        return new ResponseEntity<>(responseDtos, HttpStatus.OK);
+        return new ResponseEntity<>(alertResponseDtos, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AlertResponseDto> findById(@PathVariable Long id) {
-        AlertResponseDto responseDto = alertService.findById(id);
+        AlertResponseDto alertResponseDto = alertService.findById(id);
 
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        return new ResponseEntity<>(alertResponseDto, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AlertResponseDto> update(@PathVariable Long id, @RequestBody AlertRequestDto request) {
+        AlertResponseDto alertResponseDto = alertService.update(id, request);
+
+        return new ResponseEntity<>(alertResponseDto, HttpStatus.OK);
     }
 }

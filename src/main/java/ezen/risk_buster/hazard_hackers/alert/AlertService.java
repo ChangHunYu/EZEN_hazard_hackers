@@ -85,4 +85,32 @@ public class AlertService {
                 .updatedAt(alert.getUpdatedAt())
                 .build();
     }
+
+    @Transactional
+    public AlertResponseDto update(Long id, AlertRequestDto request) {
+
+        Alert alert = alertRepository.findById(id)
+                .orElse(null);
+
+        if (alert == null) {
+            throw new EntityNotFoundException("여행 경보를 찾을 수 없습니다.");
+        }
+
+        alert.updateMessage(request.message());
+
+        Alert savedAlert = alertRepository.save(alert);
+
+        return AlertResponseDto.builder()
+                .id(savedAlert.getId())
+                .level(savedAlert.getLevel())
+                .message(savedAlert.getMessage())
+                .description(savedAlert.getDescription())
+                .regionType(savedAlert.getRegionType())
+                .remark(savedAlert.getRemark())
+                .dang_map_download_url(savedAlert.getDangMapDownloadUrl())
+                .createdAt(savedAlert.getCreatedAt())
+                .deletedAt(savedAlert.getDeletedAt())
+                .updatedAt(savedAlert.getUpdatedAt())
+                .build();
+    }
 }
