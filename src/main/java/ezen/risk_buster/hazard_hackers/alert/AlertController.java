@@ -1,5 +1,6 @@
 package ezen.risk_buster.hazard_hackers.alert;
 
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,5 +43,13 @@ public class AlertController {
         AlertResponseDto alertResponseDto = alertService.update(id, request);
 
         return new ResponseEntity<>(alertResponseDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity delete(@PathVariable Long id) {
+        alertService.delete(id);
+
+        return new ResponseEntity(HttpStatus.OK);
+
     }
 }

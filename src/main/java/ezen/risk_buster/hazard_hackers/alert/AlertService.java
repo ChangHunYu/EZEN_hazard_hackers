@@ -113,4 +113,17 @@ public class AlertService {
                 .updatedAt(savedAlert.getUpdatedAt())
                 .build();
     }
+
+    @Transactional
+    public void delete(Long id) {
+
+        Alert alert = alertRepository.findByIdAndIsDeletedFalse(id);
+
+        if (alert == null) {
+            throw new EntityNotFoundException("여행 경보를 찾을 수 없습니다.");
+        }
+
+        alert.softDelete();
+        alertRepository.delete(alert);
+    }
 }
