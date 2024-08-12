@@ -2,10 +2,9 @@ package ezen.risk_buster.hazard_hackers.alert;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/alerts")
@@ -21,6 +20,13 @@ public class AlertController {
     public ResponseEntity<AlertResponseDto> create(@RequestBody AlertRequestDto request) {
         AlertResponseDto responseDto = alertService.create(request);
 
-        return new ResponseEntity<> (responseDto, HttpStatus.CREATED);
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<AlertResponseDto>> findAll() {
+        List<AlertResponseDto> responseDtos = alertService.findAll();
+
+        return new ResponseEntity<>(responseDtos, HttpStatus.OK);
     }
 }
