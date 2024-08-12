@@ -32,4 +32,10 @@ public class CountryController {
         List<CountryResponse> countryResponses = countryService.findAll();
         return new ResponseEntity<>(countryResponses, HttpStatus.OK);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> update(@RequestBody CountryRequest request, @PathVariable Long id) {
+        CountryResponse countryResponse = countryService.update(request, id);
+        return new ResponseEntity<>(countryResponse.countryName()+" 수정에 성공했습니다.", HttpStatus.OK);
+    }
 }

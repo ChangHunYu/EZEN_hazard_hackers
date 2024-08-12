@@ -146,4 +146,25 @@ class CountryTest {
         Assertions.assertThat(list.get(0).countryName()).isEqualTo(country1.getCountryName());
         Assertions.assertThat(list.get(1).countryName()).isEqualTo(country2.getCountryName());
     }
+
+    @Test
+    @DisplayName("국가 수정 테스트")
+    void updateCountry() {
+        CountryRequest request = new CountryRequest(
+                continent1.getId(),
+                alert2.getId(),
+                country1.getCountryEngName(),
+                country1.getCountryIsoAlp2(),
+                country1.getCountryName(),
+                "http://일본.국기2.url",
+                "http://일본.지도2.url");
+        RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .put("/country/"+country1.getId())
+                .then().log().all()
+                .statusCode(200);
+    }
 }
