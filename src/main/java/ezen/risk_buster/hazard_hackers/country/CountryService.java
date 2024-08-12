@@ -38,4 +38,9 @@ public class CountryService {
 
         return CountryResponse.of(country);
     }
+
+    public CountryResponse findById(Long id) {
+        Country country = countryRepository.findById(id).orElse(null);
+        return CountryResponse.of(country);
+    }
 }

@@ -2,10 +2,7 @@ package ezen.risk_buster.hazard_hackers.country;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/country")
 @RestController
@@ -22,4 +19,9 @@ public class CountryController {
         return new ResponseEntity<>(countryResponse.countryName()+" 생성에 성공했습니다.", HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<CountryResponse> findById(@PathVariable Long id) {
+        CountryResponse countryResponse = countryService.findById(id);
+        return new ResponseEntity<>(countryResponse, HttpStatus.OK);
+    }
 }

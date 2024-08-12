@@ -4,6 +4,10 @@ import ezen.risk_buster.hazard_hackers.alert.Alert;
 import ezen.risk_buster.hazard_hackers.alert.AlertRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,10 +32,14 @@ class CountryTest {
     @Autowired
     ContinentRepository continentRepository;
 
+    @Autowired
+    CountryRepository countryRepository;
+
     static Alert alert1;
 
     static Continent continent1;
 
+    static Country country1;
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
@@ -48,6 +56,18 @@ class CountryTest {
                 Continent.builder()
                         .continent_eng_nm("asia")
                         .continent_nm("아시아")
+                        .build()
+        );
+        ;
+        country1 = countryRepository.save(
+                Country.builder()
+                        .alert(alert1)
+                        .continent(continent1)
+                        .countryEngName("Japan")
+                        .countryIsoAlp2("JP")
+                        .countryName("일본")
+                        .flagDownloadUrl("http://일본.국기.url")
+                        .mapDownloadUrl("http://일본.지도.url")
                         .build()
         );
     }
@@ -71,5 +91,19 @@ class CountryTest {
                 .post("/country")
                 .then().log().all()
                 .statusCode(200);
+    }
+
+    @Test
+    @DisplayName("국가 id로 조회 테스트")
+    void findById() {
+        ExtractableResponse<Response> extract = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/country/" + country1.getId())
+                .then().log().all()
+                .statusCode(200).extract();
+        CountryResponse object = extract.jsonPath().getObject("", CountryResponse.class);
+        Assertions.assertThat(object.countryName()).isEqualTo(country1.getCountryName());
     }
 }

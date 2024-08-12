@@ -6,6 +6,8 @@ import org.hibernate.validator.constraints.URL;
 
 public record CountryResponse(
         Long id,
+        String continentName,
+        Long alertLevel,
         String countryEngName,
         String countryIsoAlp2,
         String countryName,
@@ -15,6 +17,8 @@ public record CountryResponse(
         public static CountryResponse of(Country country) {
                 return new CountryResponse(
                         country.getId(),
+                        country.getContinent().getContinent_nm(),
+                        country.getAlert().getLevel(),
                         country.getCountryEngName(),
                         country.getCountryIsoAlp2(),
                         country.getCountryName(),
