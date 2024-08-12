@@ -1,7 +1,10 @@
 package ezen.risk_buster.hazard_hackers.alert;
 
+import lombok.Builder;
+
 import java.time.LocalDateTime;
 
+@Builder
 public record AlertResponseDto(
         Long id,
         Long level,

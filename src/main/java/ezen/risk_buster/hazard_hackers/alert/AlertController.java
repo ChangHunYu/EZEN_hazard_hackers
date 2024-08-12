@@ -17,5 +17,10 @@ public class AlertController {
         this.alertService = alertService;
     }
 
+    @PostMapping
+    public ResponseEntity<AlertResponseDto> create(@RequestBody AlertRequestDto request) {
+        AlertResponseDto responseDto = alertService.create(request);
 
+        return new ResponseEntity<> (responseDto, HttpStatus.CREATED);
+    }
 }

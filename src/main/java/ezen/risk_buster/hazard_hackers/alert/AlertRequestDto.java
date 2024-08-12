@@ -1,15 +1,14 @@
 package ezen.risk_buster.hazard_hackers.alert;
 
-import java.time.LocalDateTime;
+import lombok.Builder;
 
+@Builder
 public record AlertRequestDto(
         Long level,
         String message,
         String description,
         String regionType,
         String remark,
-        String dang_map_download_url,
-        LocalDateTime createdAt,
-        LocalDateTime deletedAt
+        String dang_map_download_url
 ) {
 }
