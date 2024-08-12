@@ -5,6 +5,8 @@ import ezen.risk_buster.hazard_hackers.alert.AlertRepository;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CountryService {
     private final CountryRepository countryRepository;
@@ -42,5 +44,10 @@ public class CountryService {
     public CountryResponse findById(Long id) {
         Country country = countryRepository.findById(id).orElse(null);
         return CountryResponse.of(country);
+    }
+
+    public List<CountryResponse> findAll() {
+        List<Country> countries = countryRepository.findAll();
+        return countries.stream().map(CountryResponse::of).toList();
     }
 }
