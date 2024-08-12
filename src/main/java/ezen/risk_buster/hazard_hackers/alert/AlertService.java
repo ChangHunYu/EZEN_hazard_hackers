@@ -1,5 +1,6 @@
 package ezen.risk_buster.hazard_hackers.alert;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,7 @@ public class AlertService {
     }
 
     public List<AlertResponseDto> findAll() {
+
         List<Alert> alerts = alertRepository.findAll();
 
         return alerts.stream()
@@ -58,5 +60,29 @@ public class AlertService {
                         .updatedAt(a.getUpdatedAt())
                         .build())
                 .toList();
+    }
+
+    @Transactional
+    public AlertResponseDto findById(Long id) {
+
+        Alert alert = alertRepository.findById(id)
+                .orElse(null);
+
+        if (alert == null) {
+            throw new EntityNotFoundException("여행 경보를 찾을 수 없습니다.");
+        }
+
+        return AlertResponseDto.builder()
+                .id(alert.getId())
+                .level(alert.getLevel())
+                .message(alert.getMessage())
+                .description(alert.getDescription())
+                .regionType(alert.getRegionType())
+                .remark(alert.getRemark())
+                .dang_map_download_url(alert.getDangMapDownloadUrl())
+                .createdAt(alert.getCreatedAt())
+                .deletedAt(alert.getDeletedAt())
+                .updatedAt(alert.getUpdatedAt())
+                .build();
     }
 }

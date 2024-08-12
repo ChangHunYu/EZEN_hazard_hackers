@@ -29,4 +29,11 @@ public class AlertController {
 
         return new ResponseEntity<>(responseDtos, HttpStatus.OK);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AlertResponseDto> findById(@PathVariable Long id) {
+        AlertResponseDto responseDto = alertService.findById(id);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 }
