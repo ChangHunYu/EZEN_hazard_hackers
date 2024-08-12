@@ -38,4 +38,10 @@ public class CountryController {
         CountryResponse countryResponse = countryService.update(request, id);
         return new ResponseEntity<>(countryResponse.countryName()+" 수정에 성공했습니다.", HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id) {
+        countryService.delete(id);
+        return new ResponseEntity<>("삭제에 성공했습니다.", HttpStatus.OK);
+    }
 }

@@ -44,7 +44,7 @@ public class CountryService {
     }
 
     public CountryResponse findById(Long id) {
-        Country country = countryRepository.findById(id).orElse(null);
+        Country country = countryRepository.findByIdAndIsDeletedFalse(id);
         return CountryResponse.of(country);
     }
 
@@ -55,7 +55,7 @@ public class CountryService {
 
     @Transactional
     public CountryResponse update(CountryRequest request, Long id) {
-        Country country = countryRepository.findById(id).orElse(null);
+        Country country = countryRepository.findByIdAndIsDeletedFalse(id);
 
         if (country == null) {
             throw new IllegalArgumentException("id에 해당하는 country가 없음");
@@ -85,5 +85,16 @@ public class CountryService {
         Country savedCountry = countryRepository.save(updateCountry);
 
         return CountryResponse.of(savedCountry);
+    }
+
+    public void delete(Long id) {
+        Country country = countryRepository.findByIdAndIsDeletedFalse(id);
+
+        if (country == null) {
+            throw new IllegalArgumentException("id에 해당하는 country가 없음");
+        }
+
+        country.softDelete();
+        countryRepository.save(country);
     }
 }

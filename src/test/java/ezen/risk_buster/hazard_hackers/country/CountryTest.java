@@ -167,4 +167,24 @@ class CountryTest {
                 .then().log().all()
                 .statusCode(200);
     }
+
+    @Test
+    @DisplayName("국가 삭제 테스트")
+    void deleteCountry() {
+        RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .when()
+                .delete("/country/"+country1.getId())
+                .then().log().all()
+                .statusCode(200).extract();
+
+        ExtractableResponse<Response> extract = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/country/" + country1.getId())
+                .then().log().all()
+                .statusCode(500).extract();
+    }
 }
