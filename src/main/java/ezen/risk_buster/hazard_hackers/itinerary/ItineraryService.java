@@ -4,9 +4,12 @@ import ezen.risk_buster.hazard_hackers.user.User;
 import ezen.risk_buster.hazard_hackers.user.UserCountry;
 import ezen.risk_buster.hazard_hackers.user.UserCountryRepostiory;
 import ezen.risk_buster.hazard_hackers.user.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -25,7 +28,7 @@ public class ItineraryService {
 
     //일정생성
     @Transactional
-    public ItineraryResponse<R> createItineraty(ItineraryRequest request) {
+    public ItineraryResponse createItineraty(ItineraryRequest request) {
         User user = userRepository.findById(request.userId()).orElse(null);
         if (user == null) {
             throw new IllegalArgumentException("user not found");
@@ -47,7 +50,7 @@ public class ItineraryService {
                         .build()
         );
 
-        return new ItineraryResponse<R>(
+        return new ItineraryResponse(
                 itinerary.getId(),
                 itinerary.getUser().getEmail(),
                 itinerary.getUserCountry().getCountry().getCountryName(),
@@ -59,13 +62,13 @@ public class ItineraryService {
     }
 
     //일정 단일 조회
-    public ItineraryResponse<R> findByOne(Long id) {
+    public ItineraryResponse findByOne(Long id) {
         Itinerary itinerary = itineraryRepository.findById(id).orElse(null);
 
         if (itinerary == null) {
             throw new NoSuchElementException("id에 해당하는 일정이 없음");
         }
-        return new ItineraryResponse<R>(
+        return new ItineraryResponse(
                 itinerary.getId(),
                 itinerary.getUser().getEmail(),
                 itinerary.getUserCountry().getCountry().getCountryName(),
@@ -77,7 +80,7 @@ public class ItineraryService {
     }
 
     //일정 목록 조회
-    public List<ItineraryResponse<R>> findAll() {
+    public List<ItineraryResponse> findAll() {
         List<Itinerary> itineraries = itineraryRepository.findAll();
         return itineraries.stream()
                 .map(i -> ItineraryResponse.builder()
@@ -91,13 +94,38 @@ public class ItineraryService {
                 .toList();
     }
 
+
+    //일정 수정
+    @Transactional
+    public ItineraryResponse update(Long id, ItineraryResponse request) {
+        Itinerary itinerary = itineraryRepository.findByIdAndIsDeletedFalse(id);
+        if (itinerary == null) {
+            throw new EntityNotFoundException("Itinerary Not Found");
+        }
+
+        Itinerary savedItinerary = itineraryRepository.save(itinerary);
+
+        return ItineraryResponse.builder()
+                .id(itinerary.getId())
+                .userEmail(itinerary.getUser().getEmail())
+                .userCountryName(request.userCountryName())
+                .title(itinerary.getTitle())
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now())
+                .description(itinerary.getDescription())
+                .build();
+    }
+
     //일정 삭제
     @Transactional
-    public void DeleteItinerary(Long id) {
-        Itinerary itinerary = itineraryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("일정을 찾을수없음"));
-        itinerary.delete();
-        itineraryRepository.save(itinerary);
+    public void deleteItinerary(Long id) {
+        Itinerary deleteItinerary = itineraryRepository.findById(id)
+                .orElse(null);
+        if (deleteItinerary == null) {
+            throw new EntityNotFoundException("Itinerary Not Found");
+        }
+
+        deleteItinerary.softDelete();
     }
 
 

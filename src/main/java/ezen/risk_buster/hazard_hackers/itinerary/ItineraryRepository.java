@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
     List<Itinerary> findAll();
+    Itinerary findByIdAndIsDeletedFalse(Long id);
 }

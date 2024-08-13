@@ -9,6 +9,5 @@ public record ItineraryRequest(
         LocalDate startDate,
         LocalDate endDate,
         String description
-
 ) {
 }

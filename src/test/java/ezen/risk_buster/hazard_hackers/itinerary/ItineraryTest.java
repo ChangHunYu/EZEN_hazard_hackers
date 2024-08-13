@@ -12,7 +12,10 @@ import ezen.risk_buster.hazard_hackers.user.UserCountry;
 import ezen.risk_buster.hazard_hackers.user.UserCountryRepostiory;
 import ezen.risk_buster.hazard_hackers.user.UserRepository;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -124,7 +128,7 @@ class ItineraryTest {
                 "defd"
         );
 
-        ItineraryResponse<R> response = itineraryService.createItineraty(request);
+        ItineraryResponse response = itineraryService.createItineraty(request);
 
         assertThat(response).isNotNull();
         assertThat(response.title()).isEqualTo("d");
@@ -134,7 +138,17 @@ class ItineraryTest {
     @Test
     @DisplayName("일정 id로 조회테스트")
     void findById(){
-        ItineraryResponse<Response> extract =
+        ExtractableResponse<Response> extract = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/itinerary/" + itinerary.getId())
+                .then().log().all()
+                .statusCode(200).extract();
+        ItineraryResponse response = extract.as(ItineraryResponse.class);
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.title()).isEqualTo(itinerary.getTitle());
+
     }
 
 }
