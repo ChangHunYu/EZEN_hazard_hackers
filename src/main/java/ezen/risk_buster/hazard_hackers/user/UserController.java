@@ -21,8 +21,9 @@ public class UserController {
     }
 
     @PostMapping("/login") //로그인
-    public LoginRequest login(@Valid @RequestBody LoginRequest request) {
-        return userService.authenticateAndGenerateToken(request);
+    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
+        userService.login(request);
+        return new ResponseEntity<>("로그인에 성공했습니다.", HttpStatus.OK);
     }
 
     @GetMapping("/{id}") //프로필 조회
