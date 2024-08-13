@@ -59,20 +59,20 @@ public class UserService {
                 .build();
     }
 
-        @Transactional
-        public void delete (String email){
-            User deleteUser = userRepository.findByEmailAndIsDeletedFalse(email);
-            if (deleteUser == null) {
-                throw new EntityNotFoundException("User Not Found");
-            }
-
-            deleteUser.softDelete();
-            userRepository.save(deleteUser);
+    @Transactional
+    public void delete(Long id) {
+        User deleteUser = userRepository.findById(id)
+                .orElse(null);
+        if (deleteUser == null) {
+            throw new EntityNotFoundException("User Not Found");
         }
+
+        deleteUser.softDelete();
+    }
 
     public void login(LoginRequest request) {
         User user = userRepository.findByEmailAndIsDeletedFalse(request.userEmail());
-        if (user==null) {
+        if (user == null) {
             throw new IllegalArgumentException("이메일 또는 패스워드가 유효하지 않습니다.");
         }
         if (!user.getPassword().equals(request.password())) {
