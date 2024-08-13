@@ -71,7 +71,7 @@ public class UserTest {
                 .contentType(ContentType.JSON)
                 .body(loginRequest)
                 .when()
-                .post("/users")
+                .post("/users/login")
                 .then().log().all()
                 .statusCode(200);
     }
