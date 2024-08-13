@@ -190,4 +190,23 @@ class ItineraryTest {
                 .then().log().all()
                 .statusCode(200);
     }
+    @Test
+    @DisplayName("일정 삭제")
+    void deleteItinerary(){
+        RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .when()
+                .delete("/itineray/"+itinerary.getId())
+                .then().log().all()
+                .statusCode(200).extract();
+
+        ExtractableResponse<Response> extract = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/itineray/" + itinerary.getId())
+                .then().log().all()
+                .statusCode(405).extract(); //500으로 하면 405여야한다고 나옴
+    }
 }
