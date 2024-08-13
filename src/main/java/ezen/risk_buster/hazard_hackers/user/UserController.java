@@ -20,7 +20,7 @@ public class UserController {
         userService.create(request);
     }
 
-    @PostMapping//로그인
+    @PostMapping("/login")//로그인
     public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
         userService.login(request);
         return new ResponseEntity<>("로그인에 성공했습니다.", HttpStatus.OK);
