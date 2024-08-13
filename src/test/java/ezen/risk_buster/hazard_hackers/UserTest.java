@@ -62,9 +62,7 @@ public class UserTest {
     @DisplayName("로그인 테스트")
     void login() {
         // given
-        String 이메일 = "abc@gmail.com";
-        String 비밀번호 = "password";
-        User 유저1 = new User(1L, "young", "abc@gmail.com", "password");
+        User 유저1 = userRepository.save(new User(1L, "young", "abc@gmail.com", "password1"));
         LoginRequest loginRequest = new LoginRequest(유저1.getEmail(), 유저1.getPassword());
 
         //when & then
