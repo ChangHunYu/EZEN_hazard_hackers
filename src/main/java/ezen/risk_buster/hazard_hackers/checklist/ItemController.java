@@ -15,21 +15,20 @@ public class ItemController {
     private ItemService itemService;
 
     @PostMapping
-    public ResponseEntity<Item> createItem(@RequestParam Long checklistId, @RequestParam String description) {
-        Item item = itemService.createItem(checklistId, description);
-        return ResponseEntity.ok(item);
+    public ResponseEntity<ItemResponseDto> create(@RequestBody ItemRequestDto request) {
+        ItemResponseDto itemResponseDto = itemService.create(request);
+        return ResponseEntity.ok(itemResponseDto);
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<Item> getItem(@PathVariable Long itemId) {
-        return itemService.getItem(itemId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ItemResponseDto> getItem(@PathVariable Long itemId) {
+       ItemResponseDto itemResponseDto = itemService.getItem(itemId);
+       return ResponseEntity.ok(itemResponseDto);
     }
 
     @GetMapping("/checklist/{checklistId}")
-    public ResponseEntity<List<Item>> getItemsByChecklistId(@PathVariable Long checklistId) {
-        List<Item> items = itemService.getItemsByChecklistId(checklistId);
+    public ResponseEntity<List<ItemResponseDto>> getItemsByChecklistId(@PathVariable Long checklistId) {
+        List<ItemResponseDto> items = itemService.getItemsByChecklistId(checklistId);
         return ResponseEntity.ok(items);
     }
 
