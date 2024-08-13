@@ -7,7 +7,6 @@ import ezen.risk_buster.hazard_hackers.user.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -26,7 +25,7 @@ public class ItineraryService {
 
     //일정생성
     @Transactional
-    public ItineraryResponse createItineraty(ItineraryRequest request) {
+    public ItineraryResponse<R> createItineraty(ItineraryRequest request) {
         User user = userRepository.findById(request.userId()).orElse(null);
         if (user == null) {
             throw new IllegalArgumentException("user not found");
@@ -48,7 +47,7 @@ public class ItineraryService {
                         .build()
         );
 
-        return new ItineraryResponse(
+        return new ItineraryResponse<R>(
                 itinerary.getId(),
                 itinerary.getUser().getEmail(),
                 itinerary.getUserCountry().getCountry().getCountryName(),
@@ -60,13 +59,13 @@ public class ItineraryService {
     }
 
     //일정 단일 조회
-    public ItineraryResponse findByOne(Long id) {
+    public ItineraryResponse<R> findByOne(Long id) {
         Itinerary itinerary = itineraryRepository.findById(id).orElse(null);
 
         if (itinerary == null) {
             throw new NoSuchElementException("id에 해당하는 일정이 없음");
         }
-        return new ItineraryResponse(
+        return new ItineraryResponse<R>(
                 itinerary.getId(),
                 itinerary.getUser().getEmail(),
                 itinerary.getUserCountry().getCountry().getCountryName(),
@@ -78,7 +77,7 @@ public class ItineraryService {
     }
 
     //일정 목록 조회
-    public List<ItineraryResponse> findAll() {
+    public List<ItineraryResponse<R>> findAll() {
         List<Itinerary> itineraries = itineraryRepository.findAll();
         return itineraries.stream()
                 .map(i -> ItineraryResponse.builder()

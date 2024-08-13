@@ -1,6 +1,5 @@
 package ezen.risk_buster.hazard_hackers.itinerary;
 
-import ezen.risk_buster.hazard_hackers.user.UserRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,19 +13,19 @@ public class ItineraryController {
     }
 
     @PostMapping("/itineraryCreate")
-    public ItineraryResponse create(@RequestBody ItineraryRequest itinerary){
+    public ItineraryResponse<R> create(@RequestBody ItineraryRequest itinerary){
         return itineraryService.createItineraty(itinerary);
     }
 
     //단일조회
     @GetMapping("/itinerary/{id}")
-    public ItineraryResponse findByItinerary(@PathVariable Long id){
+    public ItineraryResponse<R> findByItinerary(@PathVariable Long id){
         return itineraryService.findByOne(id);
     }
 
     //목록조회
     @GetMapping("/itineraries")
-    public List<ItineraryResponse> findAll(){
+    public List<ItineraryResponse<R>> findAll(){
         return itineraryService.findAll();
     }
 

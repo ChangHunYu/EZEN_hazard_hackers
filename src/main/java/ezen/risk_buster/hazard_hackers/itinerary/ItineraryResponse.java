@@ -3,10 +3,9 @@ package ezen.risk_buster.hazard_hackers.itinerary;
 import lombok.Builder;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Builder
-public record ItineraryResponse(
+public record ItineraryResponse<R>(
         Long id,
         String userEmail,
         String userCountryName,
