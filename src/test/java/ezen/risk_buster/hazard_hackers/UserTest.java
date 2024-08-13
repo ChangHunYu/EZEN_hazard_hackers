@@ -1,10 +1,13 @@
 package ezen.risk_buster.hazard_hackers;
 
+import ezen.risk_buster.hazard_hackers.user.LoginRequest;
 import ezen.risk_buster.hazard_hackers.user.User;
 import ezen.risk_buster.hazard_hackers.user.UserRepository;
 import ezen.risk_buster.hazard_hackers.user.UserResponseDTO;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserTest {
+
     @LocalServerPort
     int port;
 
@@ -57,7 +61,21 @@ public class UserTest {
     @Test
     @DisplayName("로그인 테스트")
     void login() {
+        // given
+        String 이메일 = "abc@gmail.com";
+        String 비밀번호 = "password";
+        User 유저1 = new User(1L, "young", "abc@gmail.com", "password");
+        LoginRequest loginRequest = new LoginRequest(유저1.getEmail(), 유저1.getPassword());
 
+        //when & then
+        RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .body(loginRequest)
+                .when()
+                .post("/users")
+                .then().log().all()
+                .statusCode(200);
     }
     
     @Test
@@ -78,12 +96,44 @@ public class UserTest {
     @Test
     @DisplayName("프로필 수정 테스트")
     void update() {
+        // given
+        User 유저1 = userRepository.save(new User(1L, "young", "abc@gmail.com", "password1"));
+        UserResponseDTO request = new UserResponseDTO(
+                유저1.getId(),
+                유저1.getUsername(),
+                유저1.getEmail(),
+                유저1.getPassword()
+        );
 
+        //when & then
+        RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .put("/users/"+유저1.getId())
+                .then().log().all()
+                .statusCode(200);
     }
 
     @Test
     @DisplayName("회원탈퇴 테스트")
     void delete() {
+        User 유저1 = userRepository.save(new User(1L, "young", "abc@gmail.com", "password1"));
+        RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .when()
+                .delete("/users/"+유저1.getId())
+                .then().log().all()
+                .statusCode(200).extract();
 
+        ExtractableResponse<Response> extract = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/users/" + 유저1.getId())
+                .then().log().all()
+                .statusCode(500).extract();
     }
 }
