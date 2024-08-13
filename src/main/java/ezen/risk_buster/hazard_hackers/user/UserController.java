@@ -20,7 +20,7 @@ public class UserController {
         userService.create(request);
     }
 
-    @PostMapping("/login") //로그인
+    @PostMapping//로그인
     public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
         userService.login(request);
         return new ResponseEntity<>("로그인에 성공했습니다.", HttpStatus.OK);
@@ -42,8 +42,8 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}") //회원탈퇴
-    public ResponseEntity<String> delete(@PathVariable String email) {
-        userService.delete(email);
+    public ResponseEntity<String> delete(@PathVariable Long id) {
+        userService.delete(id);
 
         return new ResponseEntity<>("Deleted Success",HttpStatus.OK);
     }
