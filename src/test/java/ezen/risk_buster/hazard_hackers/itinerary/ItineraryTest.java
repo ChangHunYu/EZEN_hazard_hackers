@@ -58,10 +58,16 @@ class ItineraryTest {
 
 
     static User user;
+
     static UserCountry userCountry;
+
     static Country country;
+
     static Itinerary itinerary;
+
+
     static Alert alert;
+
     static Continent continent;
 
     @BeforeEach
@@ -148,7 +154,23 @@ class ItineraryTest {
         ItineraryResponse response = extract.as(ItineraryResponse.class);
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.title()).isEqualTo(itinerary.getTitle());
+    }
 
+    @Test
+    @DisplayName("일정 목록조회")
+    void findByAll(){
+        ExtractableResponse<Response> extract = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/itineraries")
+                .then().log().all()
+                .statusCode(200).extract();
+        List<ItineraryResponse> list = extract.jsonPath().getList(
+                "", ItineraryResponse.class);
+        Assertions.assertThat(list.size()).isEqualTo(1);
+        Assertions.assertThat(list.get(0).title()).isEqualTo(itinerary.getTitle());
+ //       Assertions.assertThat(list.get(1).title()).isEqualTo(itinerary2.getTitle());
     }
 
 }
