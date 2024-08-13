@@ -2,6 +2,7 @@ package ezen.risk_buster.hazard_hackers.checklist;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -13,12 +14,14 @@ public class ItemService {
     private ChecklistRepository checklistRepository;
 
     public Item createItem(Long checklistId, String description) {
-        // Retrieve the Checklist entity by checklistId
         Checklist checklist = checklistRepository.findById(checklistId)
                 .orElseThrow(() -> new IllegalArgumentException("Checklist not found"));
 
-        // Initialize the Item with the retrieved checklist, description, and completed status
-        Item item = new Item(null, checklist, description, false);
+        Item item = Item.builder()
+                .checklist(checklist)
+                .description(description)
+                .build();
+
         return itemRepository.save(item);
     }
 

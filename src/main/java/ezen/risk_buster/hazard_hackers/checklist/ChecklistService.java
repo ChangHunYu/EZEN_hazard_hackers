@@ -1,6 +1,7 @@
 package ezen.risk_buster.hazard_hackers.checklist;
 
 import ezen.risk_buster.hazard_hackers.user.User;
+import ezen.risk_buster.hazard_hackers.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +14,16 @@ public class ChecklistService {
 
     @Autowired
     private ChecklistRepository checklistRepository;
+    private UserRepository userRepository;
 
-    public Checklist createChecklist(User user, String title) {
-        Checklist checklist = new Checklist(user, title);
+    public Checklist createChecklist(Long userId, String title) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        Checklist checklist = Checklist.builder()
+                .user(user)
+                .title(title)
+                .build();
 
         return checklistRepository.save(checklist);
     }

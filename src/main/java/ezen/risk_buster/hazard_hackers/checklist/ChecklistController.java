@@ -19,10 +19,7 @@ public class ChecklistController {
 
     @PostMapping
     public ResponseEntity<Checklist> createChecklist(@RequestParam Long userId, @RequestParam String title) {
-        // Assuming a method to get User by ID exists in the UserService
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        Checklist checklist = checklistService.createChecklist(user, title);
+        Checklist checklist = checklistService.createChecklist(userId, title);
         return ResponseEntity.ok(checklist);
     }
 
