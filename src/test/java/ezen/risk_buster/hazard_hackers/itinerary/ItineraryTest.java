@@ -121,7 +121,6 @@ class ItineraryTest {
         );
     }
 
-
     @Test
     @DisplayName("일정 생성 테스트")
     void createItinerary() {
@@ -135,7 +134,6 @@ class ItineraryTest {
         );
 
         ItineraryResponse response = itineraryService.createItineraty(request);
-
         assertThat(response).isNotNull();
         assertThat(response.title()).isEqualTo("d");
         assertThat(response.description()).isEqualTo("defd");
@@ -173,4 +171,23 @@ class ItineraryTest {
  //       Assertions.assertThat(list.get(1).title()).isEqualTo(itinerary2.getTitle());
     }
 
+    @Test
+    @DisplayName("일정 수정")
+    void updateItinerary(){
+        ItineraryRequest request = new ItineraryRequest(
+                continent.getId(),
+                alert.getId(),
+                itinerary.getTitle(),
+                LocalDate.now(),
+                LocalDate.now(),
+                itinerary.getDescription());
+        RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .put("/itineray/"+itinerary.getId())
+                .then().log().all()
+                .statusCode(200);
+    }
 }
