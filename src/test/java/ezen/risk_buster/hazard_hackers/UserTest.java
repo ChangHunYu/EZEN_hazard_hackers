@@ -52,7 +52,38 @@ public class UserTest {
         assertThat(저장된_유저.getUsername()).isEqualTo(유저1.getUsername());
         assertThat(저장된_유저.getEmail()).isEqualTo(유저1.getEmail());
         assertThat(저장된_유저.getPassword()).isEqualTo(유저1.getPassword());
+    }
 
+    @Test
+    @DisplayName("로그인 테스트")
+    void login() {
+
+    }
+    
+    @Test
+    @DisplayName("User 조회 테스트")
+    void findUserByUserId() {
+        //given - User 객체를 생성 + 저장한다.
+        User 유저1 = userRepository.save(new User(1L, "young", "abc@gmail.com", "password1"));
+
+        //when - 저장된 User의 userId로 조회한다.
+        User 찾은_User = userRepository.findByIdAndIsDeletedFalse(유저1.getId());
+
+        //then - 찾은 User가 null이 아닌지 검증한다.
+        //       찾은 User의 userId가 저장 시 입력한 userId와 일치하는지 검증한다.
+        assertThat(찾은_User).isNotNull();
+        assertThat(찾은_User.getId()).isEqualTo(유저1.getId());
+    }
+
+    @Test
+    @DisplayName("프로필 수정 테스트")
+    void update() {
+
+    }
+
+    @Test
+    @DisplayName("회원탈퇴 테스트")
+    void delete() {
 
     }
 }
