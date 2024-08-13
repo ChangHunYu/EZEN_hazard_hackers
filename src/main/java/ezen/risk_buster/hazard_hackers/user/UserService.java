@@ -23,14 +23,14 @@ public class UserService {
                 request.password()));
     }
 
-//    public LoginRequest authenticateAndGenerateToken(LoginRequest request) {
-////        User user = authenticate(request);
-////        String token = generateToken(user);
-////        return new LoginRequest(token);
+//    public void authenticateAndGenerateToken(LoginRequest request) {
+//       User user = authenticate(request);
+//       String token = generateToken(user);
+//        return new LoginRequest(token);
 //    }
 
     public UserResponseDTO findById(Long id) {
-        User user = userRepository.findById(id).orElse(null);
+        User user = userRepository.findByIdAndIsDeletedFalse(id);
         if (user == null) {
             throw new EntityNotFoundException("user Not Found");
         }
@@ -44,7 +44,7 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO update(Long id, UserResponseDTO request) {
-        User user = userRepository.findById(id).orElse(null);
+        User user = userRepository.findByIdAndIsDeletedFalse(id);
         if (user == null) {
             throw new EntityNotFoundException("Comment Not Found");
         }
@@ -61,7 +61,7 @@ public class UserService {
 
         @Transactional
         public void delete (String email){
-            User deleteUser = userRepository.deleteByEmail(email);
+            User deleteUser = userRepository.findByEmailAndIsDeletedFalse(email);
             if (deleteUser == null) {
                 throw new EntityNotFoundException("User Not Found");
             }
@@ -69,4 +69,14 @@ public class UserService {
             deleteUser.softDelete();
             userRepository.save(deleteUser);
         }
+
+    public void login(LoginRequest request) {
+        User user = userRepository.findByEmailAndIsDeletedFalse(request.userEmail());
+        if (user==null) {
+            throw new IllegalArgumentException("이메일 또는 패스워드가 유효하지 않습니다.");
+        }
+        if (!user.getPassword().equals(request.password())) {
+            throw new IllegalArgumentException("이메일 또는 패스워드가 유효하지 않습니다.");
+        }
     }
+}
