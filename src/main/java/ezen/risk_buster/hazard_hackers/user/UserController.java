@@ -49,6 +49,12 @@ public class UserController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
+
+    @PatchMapping("/me") //비밀번호 수정
+    public void changePassword(@LoginUser String userEmail, @RequestBody ChangePasswordRequest request){
+        userService.changePassword(userEmail, request);
+    }
+
     @DeleteMapping("/{id}") //회원탈퇴
     public ResponseEntity<String> delete(@PathVariable Long id) {
         userService.delete(id);
