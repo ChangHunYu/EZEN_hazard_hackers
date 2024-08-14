@@ -48,4 +48,7 @@ public class Itinerary extends BaseEntity {
     public void delete(){
         this.deleted = true;
     }
+
+
+
 }

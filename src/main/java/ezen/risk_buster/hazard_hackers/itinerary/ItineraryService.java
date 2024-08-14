@@ -63,12 +63,24 @@ public class ItineraryService {
     }
 
     //일정 단일 조회
-    public ItineraryResponse findById(Long id) {
-        Itinerary itinerary = itineraryRepository.findByIdAndIsDeletedFalse(id);
+    public ItineraryResponse findById(String userEmail,Long id) {
 
+        //유저 확인
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(()-> new EntityNotFoundException("유저를 찾을 수 없습니다."+ userEmail));
+
+
+        //일정조회 검증
+        Itinerary itinerary = itineraryRepository.findByIdAndIsDeletedFalse(id);
+        if(!user.getId().equals(itinerary.getUser().getId())) {
+            throw new IllegalArgumentException("본인 일정이 아닙니다.");
+        }
+
+        //일정 검증
         if (itinerary == null) {
             throw new NoSuchElementException("id에 해당하는 일정이 없음");
         }
+
         return new ItineraryResponse(
                 itinerary.getId(),
                 itinerary.getUser().getEmail(),
@@ -78,6 +90,7 @@ public class ItineraryService {
                 itinerary.getEndDate(),
                 itinerary.getDescription()
         );
+
     }
 
     //일정 목록 조회

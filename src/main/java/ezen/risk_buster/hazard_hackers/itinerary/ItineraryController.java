@@ -1,5 +1,6 @@
 package ezen.risk_buster.hazard_hackers.itinerary;
 
+import ezen.risk_buster.hazard_hackers.common.auth.LoginUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,15 +18,15 @@ public class ItineraryController {
 
     //일정생성
     @PostMapping
-    public ResponseEntity<String> create(@RequestBody ItineraryRequest itinerary){
+    public ResponseEntity<String> create(@RequestBody ItineraryRequest itinerary, @LoginUser String userEmail){
         ItineraryResponse itineraryResponse = itineraryService.create(itinerary);
         return new ResponseEntity<>(itineraryResponse.title()+"일정생성에 성공했습니다.", HttpStatus.OK);
     }
 
     //단일조회
     @GetMapping("/{id}")
-    public ResponseEntity<ItineraryResponse> findByItinerary(@PathVariable Long id){
-        ItineraryResponse itineraryResponse = itineraryService.findById(id);
+    public ResponseEntity<ItineraryResponse> findByItinerary(@PathVariable Long id, @LoginUser String userEmail){
+        ItineraryResponse itineraryResponse = itineraryService.findById(userEmail, id);
         return new ResponseEntity<>(itineraryResponse, HttpStatus.OK) ;
     }
 

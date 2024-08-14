@@ -3,18 +3,19 @@ package ezen.risk_buster.hazard_hackers.itinerary;
 
 import ezen.risk_buster.hazard_hackers.alert.Alert;
 import ezen.risk_buster.hazard_hackers.alert.AlertRepository;
+import ezen.risk_buster.hazard_hackers.common.auth.SecurityUtils;
 import ezen.risk_buster.hazard_hackers.country.Continent;
 import ezen.risk_buster.hazard_hackers.country.ContinentRepository;
 import ezen.risk_buster.hazard_hackers.country.Country;
 import ezen.risk_buster.hazard_hackers.country.CountryRepository;
-import ezen.risk_buster.hazard_hackers.user.User;
-import ezen.risk_buster.hazard_hackers.user.UserCountry;
-import ezen.risk_buster.hazard_hackers.user.UserCountryRepostiory;
-import ezen.risk_buster.hazard_hackers.user.UserRepository;
+import ezen.risk_buster.hazard_hackers.user.*;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.apache.http.HttpHeaders;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,8 +43,10 @@ class ItineraryTest {
 
     @Autowired
     UserRepository userRepository;
+
     @Autowired
     UserCountryRepostiory userCountryRepostiory;
+
     @Autowired
     AlertRepository alertRepository;
 
@@ -70,13 +73,21 @@ class ItineraryTest {
 
     static Continent continent;
 
+    //로그인이 필요함
+    static String rawPassword = "password1";
+    static String hasedPassword1;
+
+    @PersistenceContext
+    EntityManager em;
+
     @BeforeEach
     void setUp(){
+        hasedPassword1 = SecurityUtils.sha256Encrypt(rawPassword);
         RestAssured.port = port;
         user = userRepository.save(User.builder()
                 .email("user1@gamil.com")
                         .username("test")
-                        .password("password")
+                        .password(hasedPassword1)
                 .build());
         alert = alertRepository.save(Alert.builder()
                         .level(1L)
@@ -119,11 +130,17 @@ class ItineraryTest {
                         .endDate(LocalDate.now().plusDays(7))
                         .build()
         );
+
+//        //User저장
+//        RestAssured.port = port;
+//        hasedPassword1 = SecurityUtils.sha256Encrypt("password1");
+//        유저1 = new User("young", "abc@gmail.com", hasedPassword1);
     }
 
     @Test
     @DisplayName("일정 생성 테스트")
     void createItinerary() {
+        //로그인 후 토큰 발급
         ItineraryRequest request = new ItineraryRequest(
                 user.getId(),
                 userCountry.getId(),
@@ -142,9 +159,23 @@ class ItineraryTest {
     @Test
     @DisplayName("일정 id로 조회테스트")
     void findById(){
+        //로그인 후 토큰 발급
+        LoginRequest login = new LoginRequest(user.getEmail(), rawPassword);
+        ExtractableResponse<Response> extract1 = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .body(login)
+                .when()
+                .post("/users/login")
+                .then().log().all()
+                .statusCode(200).extract();
+        LoginResponse token = extract1.as(LoginResponse.class);
+
+        //
         ExtractableResponse<Response> extract = RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
                 .when()
                 .get("/itinerary/" + itinerary.getId())
                 .then().log().all()
