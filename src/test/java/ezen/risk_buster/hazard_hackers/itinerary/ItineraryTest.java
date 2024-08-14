@@ -133,7 +133,7 @@ class ItineraryTest {
                 "defd"
         );
 
-        ItineraryResponse response = itineraryService.createItineraty(request);
+        ItineraryResponse response = itineraryService.create(request);
         assertThat(response).isNotNull();
         assertThat(response.title()).isEqualTo("d");
         assertThat(response.description()).isEqualTo("defd");
