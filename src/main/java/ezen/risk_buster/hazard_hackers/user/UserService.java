@@ -15,10 +15,9 @@ public class UserService {
 
 
     @Transactional
-    public void create(UserResponseDTO request) {
+    public void create(SignupRequest request) {
         userRepository.save(new User(
-                request.id(),
-                request.name(),
+                request.username(),
                 request.email(),
                 request.password()));
     }

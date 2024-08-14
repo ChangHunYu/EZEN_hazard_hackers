@@ -46,7 +46,7 @@ public class UserTest {
     @DisplayName("User 생성 테스트")
     void createUser() {
         //given - User 객체를 생성한다.
-        User 유저1 = new User(1L, "young", "abc@gmail.com", "password1");
+        User 유저1 = new User("young", "abc@gmail.com", "password1");
 
         //when - 생성한 User 객체를 저장한다.
         User 저장된_유저 = userRepository.save(유저1);
@@ -62,7 +62,7 @@ public class UserTest {
     @DisplayName("로그인 테스트")
     void login() {
         // given
-        User 유저1 = userRepository.save(new User(1L, "young", "abc@gmail.com", "password1"));
+        User 유저1 = userRepository.save(new User( "young", "abc@gmail.com", "password1"));
         LoginRequest loginRequest = new LoginRequest(유저1.getEmail(), 유저1.getPassword());
 
         //when & then
@@ -80,7 +80,7 @@ public class UserTest {
     @DisplayName("User 조회 테스트")
     void findUserByUserId() {
         //given - User 객체를 생성 + 저장한다.
-        User 유저1 = userRepository.save(new User(1L, "young", "abc@gmail.com", "password1"));
+        User 유저1 = userRepository.save(new User("young", "abc@gmail.com", "password1"));
 
         //when - 저장된 User의 userId로 조회한다.
         User 찾은_User = userRepository.findByIdAndIsDeletedFalse(유저1.getId());
@@ -95,7 +95,7 @@ public class UserTest {
     @DisplayName("프로필 수정 테스트")
     void update() {
         // given
-        User 유저1 = userRepository.save(new User(1L, "young", "abc@gmail.com", "password1"));
+        User 유저1 = userRepository.save(new User("young", "abc@gmail.com", "password1"));
         UserResponseDTO request = new UserResponseDTO(
                 유저1.getId(),
                 유저1.getUsername(),
@@ -117,7 +117,7 @@ public class UserTest {
     @Test
     @DisplayName("회원탈퇴 테스트")
     void delete() {
-        User 유저1 = userRepository.save(new User(1L, "young", "abc@gmail.com", "password1"));
+        User 유저1 = userRepository.save(new User("young", "abc@gmail.com", "password1"));
         RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)

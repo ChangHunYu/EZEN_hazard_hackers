@@ -16,7 +16,7 @@ public class UserController {
     }
 
     @PostMapping("/signup") //회원가입
-    public void register(@RequestBody UserResponseDTO request) {
+    public void register(@RequestBody SignupRequest request) {
         userService.create(request);
     }
 
