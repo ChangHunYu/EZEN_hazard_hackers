@@ -161,7 +161,7 @@ class ItineraryTest {
                 .given().log().all()
                 .contentType(ContentType.JSON)
                 .when()
-                .get("/itineraries")
+                .get("/itinerary")
                 .then().log().all()
                 .statusCode(200).extract();
         List<ItineraryResponse> list = extract.jsonPath().getList(
@@ -186,18 +186,27 @@ class ItineraryTest {
                 .contentType(ContentType.JSON)
                 .body(request)
                 .when()
-                .put("/itineray/"+itinerary.getId())
+                .put("/itinerary/"+itinerary.getId())
                 .then().log().all()
                 .statusCode(200);
     }
     @Test
     @DisplayName("일정 삭제")
     void deleteItinerary(){
+
         RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
                 .when()
-                .delete("/itineray/"+itinerary.getId())
+                .get("/itinerary/" + itinerary.getId())
+                .then().log().all()
+                .statusCode(200).extract();
+
+        RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .when()
+                .delete("/itinerary/"+itinerary.getId())
                 .then().log().all()
                 .statusCode(200).extract();
 
@@ -205,8 +214,8 @@ class ItineraryTest {
                 .given().log().all()
                 .contentType(ContentType.JSON)
                 .when()
-                .get("/itineray/" + itinerary.getId())
+                .get("/itinerary/" + itinerary.getId())
                 .then().log().all()
-                .statusCode(405).extract(); //500으로 하면 405여야한다고 나옴
+                .statusCode(500).extract();
     }
 }

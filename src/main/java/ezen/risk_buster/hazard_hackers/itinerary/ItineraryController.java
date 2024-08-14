@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RequestMapping("/itinerary")
 @RestController
 public class ItineraryController {
     private final ItineraryService itineraryService;
@@ -22,14 +23,14 @@ public class ItineraryController {
     }
 
     //단일조회
-    @GetMapping("/itinerary/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ItineraryResponse> findByItinerary(@PathVariable Long id){
         ItineraryResponse itineraryResponse = itineraryService.findById(id);
         return new ResponseEntity<>(itineraryResponse, HttpStatus.OK) ;
     }
 
     //목록조회
-    @GetMapping("/itineraries")
+    @GetMapping
     public ResponseEntity<List<ItineraryResponse>> findAll(){
         List<ItineraryResponse> itineraryResponses = itineraryService.findAll();
 
@@ -37,7 +38,7 @@ public class ItineraryController {
     }
 
     //일정수정
-    @PutMapping("/itineray/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ItineraryResponse> update(@PathVariable Long id,
                                                     @RequestBody ItineraryResponse request) {
         ItineraryResponse responseDTO = itineraryService.update(id, request);
@@ -46,11 +47,11 @@ public class ItineraryController {
     }
 
     //일정삭제
-    @DeleteMapping("/itineray/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> delete (@PathVariable Long id){
         itineraryService.deleteItinerary(id);
 
-        return new ResponseEntity<>("Deleted Success",HttpStatus.OK);
+        return new ResponseEntity<>("Deleted Success", HttpStatus.OK);
     }
 
 }

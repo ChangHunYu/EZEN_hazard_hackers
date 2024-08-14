@@ -64,7 +64,7 @@ public class ItineraryService {
 
     //일정 단일 조회
     public ItineraryResponse findById(Long id) {
-        Itinerary itinerary = itineraryRepository.findById(id).orElse(null);
+        Itinerary itinerary = itineraryRepository.findByIdAndIsDeletedFalse(id);
 
         if (itinerary == null) {
             throw new NoSuchElementException("id에 해당하는 일정이 없음");
@@ -82,7 +82,7 @@ public class ItineraryService {
 
     //일정 목록 조회
     public List<ItineraryResponse> findAll() {
-        List<Itinerary> itineraries = itineraryRepository.findAll();
+        List<Itinerary> itineraries = itineraryRepository.findAllByIsDeletedFalse();
         return itineraries.stream()
                 .map(i -> ItineraryResponse.builder()
                         .userEmail(i.getUser().getEmail())
@@ -120,13 +120,13 @@ public class ItineraryService {
     //일정 삭제
     @Transactional
     public void deleteItinerary(Long id) {
-        Itinerary deleteItinerary = itineraryRepository.findById(id)
-                .orElse(null);
+        Itinerary deleteItinerary = itineraryRepository.findByIdAndIsDeletedFalse(id);
         if (deleteItinerary == null) {
             throw new EntityNotFoundException("Itinerary Not Found");
         }
 
         deleteItinerary.softDelete();
+        itineraryRepository.save(deleteItinerary);
     }
 
 
