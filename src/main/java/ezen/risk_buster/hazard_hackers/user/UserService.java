@@ -44,7 +44,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO update(Long id, UserResponseDTO request) {
+    public UserResponseDTO update(Long id, UserResponseDTO request, String userEmail) {
         User user = userRepository.findByIdAndIsDeletedFalse(id);
         if (user == null) {
             throw new EntityNotFoundException("Comment Not Found");
@@ -60,13 +60,22 @@ public class UserService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(String userEmail,Long id) {
+        User loginUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(()-> new EntityNotFoundException("사용자를 찾을 수 없습니다 email: " + userEmail));
+
         User deleteUser = userRepository.findByIdAndIsDeletedFalse(id);
+
         if (deleteUser == null) {
             throw new EntityNotFoundException("User Not Found");
         }
 
+        if(!loginUser.getId().equals(deleteUser.getId())) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
         deleteUser.softDelete();
+        userRepository.save(deleteUser);
     }
 
     public LoginResponse login(LoginRequest request) {
