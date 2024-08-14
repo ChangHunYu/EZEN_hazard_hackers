@@ -40,7 +40,6 @@ public class UserService {
                 .id(user.getId())
                 .name(user.getUsername())
                 .email(user.getEmail())
-                .password(user.getPassword())
                 .build();
     }
 
@@ -57,7 +56,6 @@ public class UserService {
                 .id(user.getId())
                 .name(user.getUsername())
                 .email(user.getEmail())
-                .password(user.getPassword())
                 .build();
     }
 
@@ -103,8 +101,7 @@ public class UserService {
         return new UserResponseDTO(
                 user.getId(),
                 user.getUsername(),
-                user.getEmail(),
-                user.getPassword()
+                user.getEmail()
         );
     }
 }

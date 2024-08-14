@@ -102,8 +102,7 @@ public class UserTest {
         UserResponseDTO request = new UserResponseDTO(
                 유저1.getId(),
                 유저1.getUsername(),
-                유저1.getEmail(),
-                유저1.getPassword()
+                유저1.getEmail()
         );
 
         //when & then
