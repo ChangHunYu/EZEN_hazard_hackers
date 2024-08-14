@@ -1,6 +1,5 @@
 package ezen.risk_buster.hazard_hackers.itinerary;
 
-import ezen.risk_buster.hazard_hackers.user.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,21 +14,26 @@ public class ItineraryController {
         this.itineraryService = itineraryService;
     }
 
-    @PostMapping("/itineraryCreate")
-    public ItineraryResponse create(@RequestBody ItineraryRequest itinerary){
-        return itineraryService.createItineraty(itinerary);
+    //일정생성
+    @PostMapping
+    public ResponseEntity<String> create(@RequestBody ItineraryRequest itinerary){
+        ItineraryResponse itineraryResponse = itineraryService.create(itinerary);
+        return new ResponseEntity<>(itineraryResponse.title()+"일정생성에 성공했습니다.", HttpStatus.OK);
     }
 
     //단일조회
     @GetMapping("/itinerary/{id}")
-    public ItineraryResponse findByItinerary(@PathVariable Long id){
-        return itineraryService.findByOne(id);
+    public ResponseEntity<ItineraryResponse> findByItinerary(@PathVariable Long id){
+        ItineraryResponse itineraryResponse = itineraryService.findById(id);
+        return new ResponseEntity<>(itineraryResponse, HttpStatus.OK) ;
     }
 
     //목록조회
     @GetMapping("/itineraries")
-    public List<ItineraryResponse> findAll(){
-        return itineraryService.findAll();
+    public ResponseEntity<List<ItineraryResponse>> findAll(){
+        List<ItineraryResponse> itineraryResponses = itineraryService.findAll();
+
+        return new ResponseEntity<>(itineraryResponses, HttpStatus.OK);
     }
 
     //일정수정
