@@ -28,4 +28,10 @@ public class Alert extends BaseEntity {
     private String regionType; // 위험 지역 ex) 전체
 
     private String remark; // 위험 지역 ex) 전 지역
+
+    public void updateMessage(String message) {
+        this.message = message;
+    }
+
+
 }
