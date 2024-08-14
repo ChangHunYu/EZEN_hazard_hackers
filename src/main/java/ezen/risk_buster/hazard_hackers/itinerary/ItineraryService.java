@@ -9,7 +9,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -26,9 +25,11 @@ public class ItineraryService {
         this.userCountryRepostiory = userCountryRepostiory;
     }
 
+
+
     //일정생성
     @Transactional
-    public ItineraryResponse createItineraty(ItineraryRequest request) {
+    public  ItineraryResponse create(ItineraryRequest request) {
         User user = userRepository.findById(request.userId()).orElse(null);
         if (user == null) {
             throw new IllegalArgumentException("user not found");
@@ -62,7 +63,7 @@ public class ItineraryService {
     }
 
     //일정 단일 조회
-    public ItineraryResponse findByOne(Long id) {
+    public ItineraryResponse findById(Long id) {
         Itinerary itinerary = itineraryRepository.findById(id).orElse(null);
 
         if (itinerary == null) {
