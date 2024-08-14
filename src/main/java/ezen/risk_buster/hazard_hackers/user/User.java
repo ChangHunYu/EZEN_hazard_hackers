@@ -1,6 +1,7 @@
 package ezen.risk_buster.hazard_hackers.user;
 
 import ezen.risk_buster.hazard_hackers.common.BaseEntity;
+import ezen.risk_buster.hazard_hackers.common.auth.SecurityUtils;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,5 +32,10 @@ public class User extends BaseEntity {
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+    public boolean authenticate(String rawPassword) {
+        String hashedInputPassword = SecurityUtils.sha256Encrypt(rawPassword);
+        return this.password.equals(hashedInputPassword);
     }
 }
