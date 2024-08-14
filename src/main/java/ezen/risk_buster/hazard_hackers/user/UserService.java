@@ -104,4 +104,14 @@ public class UserService {
                 user.getEmail()
         );
     }
+
+    public void changePassword(String userEmail, ChangePasswordRequest request) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
+        if (!user.authenticate(request.oldPassword())){
+            throw new IllegalArgumentException("비밀번호 변경에 실패했습니다. 현재 비밀번호를 확인해주세요");
+        }
+
+        user.changePassword(request.newPassword());
+    }
 }
