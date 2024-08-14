@@ -61,8 +61,7 @@ public class UserService {
 
     @Transactional
     public void delete(Long id) {
-        User deleteUser = userRepository.findById(id)
-                .orElse(null);
+        User deleteUser = userRepository.findByIdAndIsDeletedFalse(id);
         if (deleteUser == null) {
             throw new EntityNotFoundException("User Not Found");
         }
