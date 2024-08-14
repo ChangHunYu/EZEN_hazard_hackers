@@ -1,5 +1,6 @@
 package ezen.risk_buster.hazard_hackers.user;
 
+import ezen.risk_buster.hazard_hackers.common.auth.JwtProvider;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -8,9 +9,11 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, JwtProvider jwtProvider) {
         this.userRepository = userRepository;
+        this.jwtProvider = jwtProvider;
     }
 
 
@@ -68,13 +71,40 @@ public class UserService {
         deleteUser.softDelete();
     }
 
-    public void login(LoginRequest request) {
-        User user = userRepository.findByEmailAndIsDeletedFalse(request.userEmail());
+    public LoginResponse login(LoginRequest request) {
+        User user = authenticate(request);
+        String token = generateToken(user);
+        return new LoginResponse(token);
+    }
+
+    private User authenticate(LoginRequest request) {
+        // email 검증
+        User user = userRepository.findByEmail(request.userEmail())
+                .orElseThrow(() -> new IllegalArgumentException("ID 또는 PW가 틀립니다"));
+
+        // password 검증
+        if (!user.authenticate(request.password())) {
+            throw new IllegalArgumentException("ID 또는 PW가 틀립니다");
+        }
+
+        return user;
+    }
+
+    public String generateToken(User user) {
+        // 주입받은 JwtProvider 오브젝트를 통해 토큰 발급
+        return jwtProvider.createToken(user.getEmail());
+    }
+
+    public UserResponseDTO getCurrentUser(String userEmail) {
+        User user = userRepository.findByEmailAndIsDeletedFalse(userEmail);
         if (user == null) {
-            throw new IllegalArgumentException("이메일 또는 패스워드가 유효하지 않습니다.");
+            throw new IllegalArgumentException("잘못된 접근");
         }
-        if (!user.getPassword().equals(request.password())) {
-            throw new IllegalArgumentException("이메일 또는 패스워드가 유효하지 않습니다.");
-        }
+        return new UserResponseDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getPassword()
+        );
     }
 }

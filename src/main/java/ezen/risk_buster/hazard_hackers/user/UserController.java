@@ -1,5 +1,6 @@
 package ezen.risk_buster.hazard_hackers.user;
 
+import ezen.risk_buster.hazard_hackers.common.auth.LoginUser;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +22,21 @@ public class UserController {
     }
 
     @PostMapping("/login")//로그인
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
-        userService.login(request);
-        return new ResponseEntity<>("로그인에 성공했습니다.", HttpStatus.OK);
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        LoginResponse response = userService.login(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{id}") //프로필 조회
     public ResponseEntity<UserResponseDTO> findById(@PathVariable Long id) {
         UserResponseDTO responseDTO = userService.findById(id);
+
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/me") //프로필 조회
+    public ResponseEntity<UserResponseDTO> getCurrentUser(@LoginUser String userEmail) {
+        UserResponseDTO responseDTO = userService.getCurrentUser(userEmail);
 
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
