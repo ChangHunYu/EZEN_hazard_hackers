@@ -37,5 +37,11 @@ public class ItemController {
         itemService.deleteItem(itemId);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{itemId}")
+    public ResponseEntity<ItemResponseDto> updateItem(@PathVariable Long itemId) {
+        ItemResponseDto updatedItemResponseDto = itemService.updateItem(itemId);
+        return ResponseEntity.ok(updatedItemResponseDto);
+    }
 }
 

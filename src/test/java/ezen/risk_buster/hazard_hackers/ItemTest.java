@@ -162,4 +162,27 @@ public class ItemTest {
                 .then().log().all()
                 .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
+
+
+    @Test
+    void updateItemTest() {
+        // item1의 ID를 사용하여 업데이트 요청을 보냅니다.
+        Long itemId = item1.getId();
+
+        Response response = RestAssured.given()
+                .contentType(ContentType.JSON)
+                .when()
+                .put("/api/items/" + itemId)
+                .then()
+                .statusCode(200) // 성공적인 응답을 기대합니다.
+                .body("id", equalTo(itemId.intValue()))
+                .body("description", equalTo("새로운 설명"))
+                .body("isChecked", equalTo(true))
+                .extract()
+                .response();
+
+        // 응답을 검증합니다.
+        System.out.println("Response: " + response.asString());
+    }
+
 }
