@@ -210,54 +210,113 @@ class ItineraryTest {
         List<ItineraryResponse> list = extract.jsonPath().getList(
                 "", ItineraryResponse.class);
         Assertions.assertThat(list.size()).isEqualTo(1);
-        Assertions.assertThat(list.get(0).title()).isEqualTo(itinerary.getTitle(), user.getEmail());
+        Assertions.assertThat(list.get(0).title()).isEqualTo(itinerary.getTitle());
         Assertions.assertThat(list.get(0).userEmail()).isEqualTo(user.getEmail());
     }
 
     @Test
     @DisplayName("일정 수정")
     void updateItinerary(){
+        //로그인 후 토큰 발급
+        LoginRequest login = new LoginRequest(user.getEmail(), rawPassword);
+        ExtractableResponse<Response> extract1 = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .body(login)
+                .when()
+                .post("/users/login")
+                .then().log().all()
+                .statusCode(200).extract();
+        LoginResponse token = extract1.as(LoginResponse.class);
+
+        //일정 수정
         ItineraryRequest request = new ItineraryRequest(
                 continent.getId(),
                 alert.getId(),
-                itinerary.getTitle(),
+                "title 수정",
                 LocalDate.now(),
                 LocalDate.now(),
-                itinerary.getDescription());
-        RestAssured
+                "description 수정");
+
+        ExtractableResponse<Response> extract = RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
                 .body(request)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
                 .when()
-                .put("/itinerary/"+itinerary.getId())
+                .put("/itinerary/" + itinerary.getId())
                 .then().log().all()
-                .statusCode(200);
+                .statusCode(200).extract();
+        ItineraryResponse response = extract.jsonPath().getObject(
+                "", ItineraryResponse.class);
+
+        //수정된 일정 결과
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.title()).isEqualTo(request.title());
+        Assertions.assertThat(response.description()).isEqualTo(request.description());
     }
+
+
     @Test
     @DisplayName("일정 삭제")
     void deleteItinerary(){
+        LoginRequest login = new LoginRequest(user.getEmail(), rawPassword);
+        ExtractableResponse<Response> extract1 = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .body(login)
+                .when()
+                .post("/users/login")
+                .then().log().all()
+                .statusCode(200).extract();
+        LoginResponse token = extract1.as(LoginResponse.class);
+
+        ItineraryRequest request2 = new ItineraryRequest(
+                user.getId(),
+                userCountry.getId(),
+                "d",
+                LocalDate.now().plusDays(4),
+                LocalDate.now().plusDays(7),
+                "defd"
+        );
+
+        //삭제 전 일정 조회
+        Itinerary itineraryBeforeDelete = itineraryRepository.findByIdAndIsDeletedFalse(itinerary.getId());
+
         RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
                 .when()
                 .get("/itinerary/" + itinerary.getId())
                 .then().log().all()
                 .statusCode(200).extract();
 
+        //일정 삭제
         RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
                 .when()
                 .delete("/itinerary/"+itinerary.getId())
                 .then().log().all()
                 .statusCode(200).extract();
 
+        //삭제 후 일정 재조회
+        Itinerary itineraryAfterDelete = itineraryRepository.findById(itinerary.getId()).orElse(null);
         ExtractableResponse<Response> extract = RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
                 .when()
                 .get("/itinerary/" + itinerary.getId())
                 .then().log().all()
                 .statusCode(500).extract();
+
+        Assertions.assertThat(itineraryBeforeDelete).isNotNull();
+        Assertions.assertThat(itineraryAfterDelete).isNull();
+        Assertions.assertThat(itineraryRepository.findByIdAndIsDeletedFalse(itinerary.getId())).isNull();
+
+
     }
 }
