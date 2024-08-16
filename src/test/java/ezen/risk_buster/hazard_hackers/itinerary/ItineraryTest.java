@@ -131,10 +131,6 @@ class ItineraryTest {
                         .build()
         );
 
-//        //User저장
-//        RestAssured.port = port;
-//        hasedPassword1 = SecurityUtils.sha256Encrypt("password1");
-//        유저1 = new User("young", "abc@gmail.com", hasedPassword1);
     }
 
     @Test
@@ -202,10 +198,11 @@ class ItineraryTest {
                 .statusCode(200).extract();
         LoginResponse token = extract1.as(LoginResponse.class);
 
-        //
+        //목록검증
         ExtractableResponse<Response> extract = RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
                 .when()
                 .get("/itinerary")
                 .then().log().all()
@@ -213,8 +210,8 @@ class ItineraryTest {
         List<ItineraryResponse> list = extract.jsonPath().getList(
                 "", ItineraryResponse.class);
         Assertions.assertThat(list.size()).isEqualTo(1);
-        Assertions.assertThat(list.get(0).title()).isEqualTo(itinerary.getTitle());
- //       Assertions.assertThat(list.get(1).title()).isEqualTo(itinerary2.getTitle());
+        Assertions.assertThat(list.get(0).title()).isEqualTo(itinerary.getTitle(), user.getEmail());
+        Assertions.assertThat(list.get(0).userEmail()).isEqualTo(user.getEmail());
     }
 
     @Test
@@ -239,7 +236,6 @@ class ItineraryTest {
     @Test
     @DisplayName("일정 삭제")
     void deleteItinerary(){
-
         RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
