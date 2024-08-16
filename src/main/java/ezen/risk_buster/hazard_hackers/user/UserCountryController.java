@@ -29,5 +29,10 @@ public class UserCountryController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
+    @GetMapping
+    public ResponseEntity<List<UserCountryResponseDto>> findAll(@LoginUser String userEmail) {
+        List<UserCountryResponseDto> responseDtos = userCountryService.findAll(userEmail);
 
+        return new ResponseEntity<>(responseDtos, HttpStatus.OK);
+    }
 }
