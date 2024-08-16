@@ -38,17 +38,13 @@ public class Itinerary extends BaseEntity {
 
     private String description;
 
-    @Column(nullable = false)
-    private boolean deleted;
-
-    //public Itinerary(String title, LocalDate localDate, LocalDate localDate1, String description) {
-    //    super();
-    //}
-
-    public void delete(){
-        this.deleted = true;
-    }
-
-
+//    @Column(nullable = false)
+//    private boolean deleted;
+//
+//
+//
+//    public void delete(){
+//        this.deleted = true;
+//    }
 
 }

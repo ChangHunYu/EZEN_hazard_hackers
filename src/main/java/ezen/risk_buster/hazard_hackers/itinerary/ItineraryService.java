@@ -29,8 +29,9 @@ public class ItineraryService {
 
     //일정생성
     @Transactional
-    public  ItineraryResponse create(ItineraryRequest request) {
-        User user = userRepository.findById(request.userId()).orElse(null);
+    public  ItineraryResponse create(ItineraryRequest request, String userEmail) {
+
+        User user = userRepository.findByEmailAndIsDeletedFalse(userEmail);
         if (user == null) {
             throw new IllegalArgumentException("user not found");
         }
@@ -90,12 +91,18 @@ public class ItineraryService {
                 itinerary.getEndDate(),
                 itinerary.getDescription()
         );
-
     }
 
     //일정 목록 조회
-    public List<ItineraryResponse> findAll() {
-        List<Itinerary> itineraries = itineraryRepository.findAllByIsDeletedFalse();
+    public List<ItineraryResponse> findAll(String userEmail) {
+        //유저 확인
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(()-> new EntityNotFoundException("유저를 찾을 수 없습니다."+ userEmail));
+
+
+        //목록 조회 검증
+        List<Itinerary> itineraries = itineraryRepository.findAllByUserEmailAndUserIsDeletedFalseAndIsDeletedFalse(userEmail);
+
         return itineraries.stream()
                 .map(i -> ItineraryResponse.builder()
                         .userEmail(i.getUser().getEmail())
@@ -141,6 +148,5 @@ public class ItineraryService {
         deleteItinerary.softDelete();
         itineraryRepository.save(deleteItinerary);
     }
-
 
 }

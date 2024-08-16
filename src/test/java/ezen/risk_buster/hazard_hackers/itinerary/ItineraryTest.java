@@ -150,11 +150,13 @@ class ItineraryTest {
                 "defd"
         );
 
-        ItineraryResponse response = itineraryService.create(request);
+        ItineraryResponse response = itineraryService.create(request, user.getEmail() );
         assertThat(response).isNotNull();
         assertThat(response.title()).isEqualTo("d");
         assertThat(response.description()).isEqualTo("defd");
     }
+
+
 
     @Test
     @DisplayName("일정 id로 조회테스트")
@@ -188,6 +190,19 @@ class ItineraryTest {
     @Test
     @DisplayName("일정 목록조회")
     void findByAll(){
+        //로그인 후 토큰 발급
+        LoginRequest login = new LoginRequest(user.getEmail(), rawPassword);
+        ExtractableResponse<Response> extract1 = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .body(login)
+                .when()
+                .post("/users/login")
+                .then().log().all()
+                .statusCode(200).extract();
+        LoginResponse token = extract1.as(LoginResponse.class);
+
+        //
         ExtractableResponse<Response> extract = RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
