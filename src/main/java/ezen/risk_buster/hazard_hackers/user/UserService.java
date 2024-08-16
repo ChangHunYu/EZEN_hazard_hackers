@@ -1,6 +1,7 @@
 package ezen.risk_buster.hazard_hackers.user;
 
 import ezen.risk_buster.hazard_hackers.common.auth.JwtProvider;
+import ezen.risk_buster.hazard_hackers.common.auth.SecurityUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class UserService {
         userRepository.save(new User(
                 request.username(),
                 request.email(),
-                request.password()));
+                SecurityUtils.sha256Encrypt(request.password())));
     }
 
 //    public void authenticateAndGenerateToken(LoginRequest request) {
@@ -40,35 +41,52 @@ public class UserService {
                 .id(user.getId())
                 .name(user.getUsername())
                 .email(user.getEmail())
-                .password(user.getPassword())
                 .build();
     }
 
     @Transactional
-    public UserResponseDTO update(Long id, UserResponseDTO request) {
-        User user = userRepository.findByIdAndIsDeletedFalse(id);
+    public UserResponseDTO update(Long id, UserUpdateRequestDTO request, String userEmail) {
+        // 1. userEmail로 유저가 db에 있는지 확인
+        User user = userRepository.findByEmailAndIsDeletedFalse(userEmail);
         if (user == null) {
-            throw new EntityNotFoundException("Comment Not Found");
+            throw new EntityNotFoundException("User Not Found");
         }
 
+        // 2. 찾은 유저의 id, PathVariable id와 같은지 검증
+        if (!user.getId().equals(id)) {
+            throw new EntityNotFoundException("User Not Found");
+        }
+
+        // 3. 유저 엔티티 수정
+        user.update(request);
+
+        // 4. 저장
         User savedUser = userRepository.save(user);
 
         return UserResponseDTO.builder()
-                .id(user.getId())
-                .name(user.getUsername())
-                .email(user.getEmail())
-                .password(user.getPassword())
+                .id(savedUser.getId())
+                .name(savedUser.getUsername())
+                .email(savedUser.getEmail())
                 .build();
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(String userEmail,Long id) {
+        User loginUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(()-> new EntityNotFoundException("사용자를 찾을 수 없습니다 email: " + userEmail));
+
         User deleteUser = userRepository.findByIdAndIsDeletedFalse(id);
+
         if (deleteUser == null) {
             throw new EntityNotFoundException("User Not Found");
         }
 
+        if(!loginUser.getId().equals(deleteUser.getId())) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
         deleteUser.softDelete();
+        userRepository.save(deleteUser);
     }
 
     public LoginResponse login(LoginRequest request) {
@@ -103,8 +121,18 @@ public class UserService {
         return new UserResponseDTO(
                 user.getId(),
                 user.getUsername(),
-                user.getEmail(),
-                user.getPassword()
+                user.getEmail()
         );
+    }
+
+    public void changePassword(String userEmail, ChangePasswordRequest request) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
+        if (!user.authenticate(request.oldPassword())){
+            throw new IllegalArgumentException("비밀번호 변경에 실패했습니다. 현재 비밀번호를 확인해주세요");
+        }
+
+        user.changePassword(request.newPassword());
+        userRepository.save(user);
     }
 }

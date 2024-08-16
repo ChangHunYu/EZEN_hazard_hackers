@@ -38,14 +38,11 @@ public class Itinerary extends BaseEntity {
 
     private String description;
 
-    @Column(nullable = false)
-    private boolean deleted;
-
-    //public Itinerary(String title, LocalDate localDate, LocalDate localDate1, String description) {
-    //    super();
-    //}
-
-    public void delete(){
-        this.deleted = true;
+    //setter로 저장해서 리턴하면 수정할수있는 부분으로 혼동할수 있기 때문에 update함수를 만들어서 사용
+    public void update(ItineraryRequest request) {
+        this.title = request.title();
+        this.startDate = request.startDate();
+        this.endDate = request.endDate();
+        this.description = request.description();
     }
 }

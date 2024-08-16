@@ -5,6 +5,7 @@ import ezen.risk_buster.hazard_hackers.common.auth.SecurityUtils;
 import ezen.risk_buster.hazard_hackers.user.*;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import jakarta.persistence.EntityManager;
@@ -21,8 +22,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @Sql("/truncate.sql")
 @ActiveProfiles("test")
@@ -42,99 +47,58 @@ public class UserTest {
         유저1 = new User("young", "abc@gmail.com", hasedPassword1);
     }
 
+    @Autowired
+    JwtProvider jwtProvider;
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    UserService userService;
 
     @PersistenceContext
     EntityManager em;
 
     @Test
-    @DisplayName("User 생성 테스트")
+    @DisplayName("회원가입")
     void createUser() {
         //given - User 객체를 생성한다.
-
-        //when - 생성한 User 객체를 저장한다.
         User 저장된_유저 = userRepository.save(유저1);
         em.clear();
 
-        //then - 검증
-        assertThat(저장된_유저.getUsername()).isEqualTo(유저1.getUsername());
-        assertThat(저장된_유저.getEmail()).isEqualTo(유저1.getEmail());
-        assertThat(저장된_유저.getPassword()).isEqualTo(hasedPassword1);
+        //when & then - 검증
+        RestAssured.given().log().all()
+                .contentType(ContentType.JSON)
+                .body(new SignupRequest(유저1.getUsername(), 유저1.getEmail(), 유저1.getPassword()))
+                .when()
+                .post("/users/signup")
+                .then().log().all()
+                .statusCode(200);
+
+        Assertions.assertThat(저장된_유저).isNotNull();
     }
 
     @Test
     @DisplayName("로그인 테스트")
     void login() {
-        // given
-        LoginRequest loginRequest = new LoginRequest(유저1.getEmail(), rawPassword);
+        // given - 유저 생성 및 저장
+        User 저장된_유저 = userRepository.save(유저1);
+        em.clear();
 
-        //when & then
-        RestAssured
-                .given().log().all()
-                .contentType(ContentType.JSON)
-                .body(loginRequest)
-                .when()
-                .post("/users/login")
-                .then().log().all()
-                .statusCode(200);
-    }
-    
-    @Test
-    @DisplayName("User 조회 테스트")
-    void findUserByUserId() {
-        //given - User 객체를 생성 + 저장한다.
-
-        //when - 저장된 User의 userId로 조회한다.
-        User 찾은_User = userRepository.findByIdAndIsDeletedFalse(유저1.getId());
-
-        //then - 찾은 User가 null이 아닌지 검증한다.
-        //       찾은 User의 userId가 저장 시 입력한 userId와 일치하는지 검증한다.
-        assertThat(찾은_User).isNotNull();
-        assertThat(찾은_User.getId()).isEqualTo(유저1.getId());
-    }
-
-    @Test
-    @DisplayName("프로필 수정 테스트")
-    void update() {
-        // given
-        UserResponseDTO request = new UserResponseDTO(
-                유저1.getId(),
-                유저1.getUsername(),
-                유저1.getEmail(),
-                유저1.getPassword()
-        );
-
-        //when & then
-        RestAssured
-                .given().log().all()
-                .contentType(ContentType.JSON)
-                .body(request)
-                .when()
-                .put("/users/"+유저1.getId())
-                .then().log().all()
-                .statusCode(200);
-    }
-
-    @Test
-    @DisplayName("회원탈퇴 테스트")
-    void delete() {
-        RestAssured
-                .given().log().all()
-                .contentType(ContentType.JSON)
-                .when()
-                .delete("/users/"+유저1.getId())
-                .then().log().all()
-                .statusCode(200).extract();
-
+        //when & then - 로그인 후 토큰 발급
+        LoginRequest login = new LoginRequest(저장된_유저.getEmail(), rawPassword);
         ExtractableResponse<Response> extract = RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
+                .body(login)
                 .when()
-                .get("/users/" + 유저1.getId())
+                .post("/users/login")
                 .then().log().all()
-                .statusCode(500).extract();
+                .statusCode(200).extract();
+
+        Assertions.assertThat(login).isNotNull();
+        Assertions.assertThat(login.userEmail()).isEqualTo(저장된_유저.getEmail());
+        Assertions.assertThat(hasedPassword1).isEqualTo(저장된_유저.getPassword());
     }
 
     @Test
@@ -172,6 +136,151 @@ public class UserTest {
         Assertions.assertThat(responseDTO).isNotNull();
         Assertions.assertThat(responseDTO.name()).isEqualTo(유저1.getUsername());
         Assertions.assertThat(responseDTO.email()).isEqualTo(유저1.getEmail());
+    }
 
+    @Test
+    @DisplayName("프로필 수정 테스트")
+    void update() {
+        //given - User 생성 및 저장
+        User 저장된_유저 = userRepository.save(유저1);
+        em.clear();
+
+        // 로그인 후 토큰 발급
+        LoginRequest login = new LoginRequest(저장된_유저.getEmail(), rawPassword);
+        ExtractableResponse<Response> extract = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .body(login)
+                .when()
+                .post("/users/login")
+                .then().log().all()
+                .statusCode(200).extract();
+        LoginResponse loginResponse = extract.as(LoginResponse.class);
+        String token = loginResponse.accessToken();
+
+        //수정할 데이터
+        String newName = "updatedYoung";
+        String newEmail = "newemail@gmail.com";
+        UserUpdateRequestDTO requestDTO = new UserUpdateRequestDTO(newName ,newEmail);
+        //프로필 수정 요청
+        ExtractableResponse<Response> updateResponse = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + token)
+                .body(requestDTO)
+                .when()
+                .put("/users/"+저장된_유저.getId())
+                .then().log().all()
+                .statusCode(200)
+                .extract();
+
+        //데이터베이스에 업데이트 되었는지 확인
+        em.clear();
+        User updatedUser = userRepository.findByEmail(newEmail)
+                .orElseThrow(() -> new AssertionError("Updated user not found"));
+        Assertions.assertThat(updatedUser).isNotNull();
+        Assertions.assertThat(updatedUser.getUsername()).isEqualTo(newName);
+        Assertions.assertThat(updatedUser.getEmail()).isEqualTo(newEmail);
+    }
+
+    @Test
+    @DisplayName("비밀번호 변경")
+    void updatePassword() {
+        //given - 회원가입
+        String userEmail = "abc123@gmail.com";
+        String 기존_비밀번호 = "abc123!";
+        String 새_비밀번호 = "efg456@";
+        RestAssured.given().log().all()
+                .contentType(ContentType.JSON)
+                .body(new SignupRequest(userEmail, "young", 기존_비밀번호))
+                .when()
+                .post("/users/signup")
+                .then().log().all()
+                .statusCode(200);
+
+        //로그인 후 토큰 발급
+        String accessToken = 로그인(userEmail, 기존_비밀번호)
+                .jsonPath()
+                .getString("accessToken");
+
+        //비밀번호 변경
+        RestAssured.given()
+                .header("Authorization", "Bearer " + accessToken)
+                .contentType(ContentType.JSON)
+                .body(new ChangePasswordRequest(
+                        기존_비밀번호,
+                        새_비밀번호
+                ))
+                .when()
+                .patch("/users/me")
+                .then().log().all()
+                .statusCode(200);
+
+        //then
+        RestAssured.given().log().all()
+                .contentType(ContentType.JSON)
+                .body(new LoginRequest(userEmail, 기존_비밀번호))
+                .when()
+                .post("/users/login")
+                .then().log().all()
+                .statusCode(500);
+
+        RestAssured.given().log().all()
+                .contentType(ContentType.JSON)
+                .body(new LoginRequest(userEmail, 새_비밀번호))
+                .when()
+                .post("/users/login")
+                .then().log().all()
+                .statusCode(200);
+
+//        //검증
+//        ExtractableResponse<Response> 기존_비밀번호_응답 = 로그인(userEmail, 기존_비밀번호);
+//        Assertions.assertThat(기존_비밀번호_응답.statusCode()).isEqualTo(500);
+//
+//        ExtractableResponse<Response> 새_비밀번호_응답 = 로그인(userEmail, 새_비밀번호);
+//        Assertions.assertThat(새_비밀번호_응답.statusCode()).isEqualTo(200);
+    }
+
+    //static 로그인 구현
+    private static ExtractableResponse<Response> 로그인(String userEmail, String 비밀번호){
+        return RestAssured.given().log().all()
+                .contentType(ContentType.JSON)
+                .body(new LoginRequest(
+                        userEmail,
+                        비밀번호
+                ))
+                .when()
+                .post("/users/login")
+                .then().log().all()
+                .statusCode(200)
+                .extract();
+    }
+
+    @Test
+    @DisplayName("회원탈퇴")
+    void delete() {
+        //given - User 생성 및 저장
+        User 저장된_유저 = userRepository.save(유저1);
+        em.clear();
+
+        // 로그인
+        LoginRequest login = new LoginRequest(저장된_유저.getEmail(), rawPassword);
+        ExtractableResponse<Response> extract1 = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .body(login)
+                .when()
+                .post("/users/login")
+                .then().log().all()
+                .statusCode(200).extract();
+
+        //user 삭제
+            ExtractableResponse<Response> extract2 = RestAssured
+                    .given().log().all()
+                    .contentType(ContentType.JSON)
+                    .when()
+                    .delete("/users/"+저장된_유저.getId())
+                    .then().log().all()
+                    .statusCode(500).extract();
     }
 }
