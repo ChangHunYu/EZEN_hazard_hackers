@@ -98,8 +98,8 @@ class ItineraryTest {
                         .regionType("test")
                 .build());
         continent = continentRepository.save(Continent.builder()
-                .continent_eng_nm("asia")
-                .continent_nm("아시아")
+                .continentEngNm("asia")
+                .continentNm("아시아")
                 .build());
         country = countryRepository.save(Country.builder()
                         .alert(alert)
