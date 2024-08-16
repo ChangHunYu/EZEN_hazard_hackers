@@ -38,4 +38,11 @@ public class User extends BaseEntity {
         String hashedInputPassword = SecurityUtils.sha256Encrypt(rawPassword);
         return this.password.equals(hashedInputPassword);
     }
+
+    public void changePassword(String rawPassword) {this.password = SecurityUtils.sha256Encrypt(rawPassword);}
+
+    public void update(UserUpdateRequestDTO request) {
+        this.username = request.newName();
+        this.email = request.newEmail();
+    }
 }
