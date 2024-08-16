@@ -1,5 +1,7 @@
 package ezen.risk_buster.hazard_hackers.itinerary;
 
+import ezen.risk_buster.hazard_hackers.checklist.Checklist;
+import ezen.risk_buster.hazard_hackers.checklist.ChecklistService;
 import ezen.risk_buster.hazard_hackers.user.User;
 import ezen.risk_buster.hazard_hackers.user.UserCountry;
 import ezen.risk_buster.hazard_hackers.user.UserCountryRepostiory;
@@ -20,14 +22,14 @@ public class ItineraryService {
     private final ItineraryRepository itineraryRepository;
     private final UserRepository userRepository;
     private final UserCountryRepostiory userCountryRepostiory;
+    private final ChecklistService checklistService;
 
-    public ItineraryService(ItineraryRepository itineraryRepository, UserRepository userRepository, UserCountryRepostiory userCountryRepostiory) {
+    public ItineraryService(ItineraryRepository itineraryRepository, UserRepository userRepository, UserCountryRepostiory userCountryRepostiory, ChecklistService checklistService) {
         this.itineraryRepository = itineraryRepository;
         this.userRepository = userRepository;
         this.userCountryRepostiory = userCountryRepostiory;
+        this.checklistService = checklistService;
     }
-
-
 
     //일정생성
     @Transactional
@@ -43,16 +45,22 @@ public class ItineraryService {
             throw new IllegalArgumentException("userCountry not found");
         }
 
-        Itinerary itinerary = itineraryRepository.save(
-                Itinerary.builder()
+        Itinerary itinerary = Itinerary.builder()
                         .user(user)
                         .userCountry(userCountry)
                         .title(request.title())
                         .description(request.description())
                         .startDate(request.startDate())
                         .endDate(request.endDate())
-                        .build()
-        );
+                        .build();
+        String cheklistTitle = itinerary.getUserCountry() +
+                " 여행 (" +
+                itinerary.getStartDate() +
+                " ~ " +
+                itinerary.getEndDate() + " )";
+        Checklist checklist = checklistService.createChecklist(user.getId(), cheklistTitle);
+        itinerary.addCheklist(checklist);
+        itineraryRepository.save(itinerary);
 
         return new ItineraryResponse(
                 itinerary.getId(),
@@ -61,7 +69,9 @@ public class ItineraryService {
                 itinerary.getTitle(),
                 itinerary.getStartDate(),
                 itinerary.getEndDate(),
-                itinerary.getDescription()
+                itinerary.getDescription(),
+                itinerary.getChecklist().getId(),
+                itinerary.getChecklist().getTitle()
         );
     }
 
@@ -91,7 +101,10 @@ public class ItineraryService {
                 itinerary.getTitle(),
                 itinerary.getStartDate(),
                 itinerary.getEndDate(),
-                itinerary.getDescription()
+                itinerary.getDescription(),
+                itinerary.getChecklist().getId(),
+                itinerary.getChecklist().getTitle()
+
         );
     }
 
