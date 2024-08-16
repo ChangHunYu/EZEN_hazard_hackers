@@ -158,10 +158,19 @@ public class ItineraryService {
 
     //일정 삭제
     @Transactional
-    public void deleteItinerary(Long id) {
+    public void deleteItinerary(Long id, String userEmail) {
+        //유저 확인
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(()-> new EntityNotFoundException("유저를 찾을 수 없습니다."+ userEmail));
+
+        //유저가 일정을 생성한게 맞는지 일정 조회
         Itinerary deleteItinerary = itineraryRepository.findByIdAndIsDeletedFalse(id);
+
+        if (!user.getEmail().equals(userEmail)) {
+            throw new EntityNotFoundException("일정 삭제할 권한이 없습니다.");
+        }
         if (deleteItinerary == null) {
-            throw new EntityNotFoundException("Itinerary Not Found");
+            throw new EntityNotFoundException("일정이 없습니다.");
         }
 
         deleteItinerary.softDelete();

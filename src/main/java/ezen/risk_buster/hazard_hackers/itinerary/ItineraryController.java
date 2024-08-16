@@ -49,8 +49,8 @@ public class ItineraryController {
 
     //일정삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete (@PathVariable Long id ){
-        itineraryService.deleteItinerary(id);
+    public ResponseEntity<String> delete (@PathVariable Long id, @LoginUser String userEmail ){
+        itineraryService.deleteItinerary(id, userEmail);
 
         return new ResponseEntity<>("Deleted Success", HttpStatus.OK);
     }
