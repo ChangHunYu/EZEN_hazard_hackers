@@ -1,5 +1,6 @@
 package ezen.risk_buster.hazard_hackers.checklist;
 
+import ezen.risk_buster.hazard_hackers.common.auth.LoginUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,23 +25,25 @@ public class ChecklistController {
     }
 
     @GetMapping("/{checklistId}")
-    public ChecklistDto getChecklist(@PathVariable Long checklistId) {
-        return checklistService.getChecklist(checklistId);
+    public ChecklistDto getChecklist(@LoginUser String userEmail, @PathVariable Long checklistId) {
+        return checklistService.getChecklist(userEmail, checklistId);
     }
 
     @GetMapping("/user/{userId}")
-    public List<ChecklistDto> getChecklistsByUserId(@PathVariable Long userId) {
-        return checklistService.getChecklistsByUserId(userId);
+    public List<ChecklistDto> getChecklistsByUserId(@LoginUser String userEmail, @PathVariable Long userId) {
+        return checklistService.getChecklistsByUserId(userEmail, userId);
     }
 
     @PutMapping("/{checklistId}")
-    public ChecklistDto updateChecklist(@PathVariable Long checklistId, @Valid @RequestBody ChecklistUpdateDto request) {
-        return checklistService.updateChecklist(checklistId, request);
+    public ChecklistDto updateChecklist(@LoginUser String userEmail, @PathVariable Long checklistId, @Valid @RequestBody ChecklistUpdateDto request) {
+        return checklistService.updateChecklist(userEmail, checklistId, request);
     }
 
     @DeleteMapping("/{checklistId}")
-    public ResponseEntity<Void> deleteChecklist(@PathVariable Long checklistId) {
+    public ResponseEntity<Void> deleteChecklist(@LoginUser String userEmail, @PathVariable Long checklistId) {
         checklistService.deleteChecklist(checklistId);
         return ResponseEntity.noContent().build();
     }
+
+
 }
