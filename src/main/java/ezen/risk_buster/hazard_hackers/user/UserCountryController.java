@@ -22,8 +22,7 @@ public class UserCountryController {
     @PostMapping
     public ResponseEntity<UserCountryResponseDto> create(
             @LoginUser String userEmail,
-            @RequestBody UserCountryRequestDto request
-            ) {
+            @RequestBody UserCountryRequestDto request) {
         UserCountryResponseDto responseDto = userCountryService.create(userEmail, request);
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
@@ -34,5 +33,15 @@ public class UserCountryController {
         List<UserCountryResponseDto> responseDtos = userCountryService.findAll(userEmail);
 
         return new ResponseEntity<>(responseDtos, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserCountryResponseDto> findOne(
+            @LoginUser String userEmail,
+            @PathVariable Long id) {
+        UserCountryResponseDto responseDto = userCountryService.findOne(userEmail, id);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+
     }
 }

@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface UserCountryRepostiory extends JpaRepository<UserCountry, Long> {
     List<UserCountry> findByUser_EmailAndIsDeletedFalse(String userEmail);
+    UserCountry findByUser_IdAndIsDeleteFalse(String userEmail, Long id);
 }

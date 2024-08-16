@@ -5,7 +5,6 @@ import ezen.risk_buster.hazard_hackers.country.CountryRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -71,5 +70,22 @@ public class UserCountryService {
                         userCountry.getCountry().getId(),
                         userCountry.getCountry().getCountryName()))
                 .toList();
+    }
+
+    public UserCountryResponseDto findOne(String userEmail, Long id) {
+
+        User user = userRepository.findByEmailAndIsDeletedFalse(userEmail);
+        if (user == null) {
+            throw new IllegalArgumentException("해당 유저가 존재하지 않습니다. " + userEmail);
+        }
+
+        UserCountry userCountry = userCountryRepostiory.findByUser_IdAndIsDeleteFalse(userEmail, id);
+
+        return new UserCountryResponseDto(
+                userCountry.getId(),
+                userCountry.getUser().getEmail(),
+                userCountry.getCountry().getId(),
+                userCountry.getCountry().getCountryName()
+        );
     }
 }
