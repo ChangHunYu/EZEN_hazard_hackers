@@ -72,15 +72,16 @@ public class ItineraryService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(()-> new EntityNotFoundException("유저를 찾을 수 없습니다."+ userEmail));
 
-        //일정조회 검증
-        Itinerary itinerary = itineraryRepository.findByIdAndIsDeletedFalse(id);
-        if(!user.getId().equals(itinerary.getUser().getId())) {
-            throw new IllegalArgumentException("본인 일정이 아닙니다.");
-        }
-
         //일정 검증
+        Itinerary itinerary = itineraryRepository.findByIdAndIsDeletedFalse(id);
+
         if (itinerary == null) {
             throw new NoSuchElementException("id에 해당하는 일정이 없음");
+        }
+
+        // 찾은 일정의 유저의 id == 유저의 id
+        if(!user.getId().equals(itinerary.getUser().getId())) {
+            throw new IllegalArgumentException("본인 일정이 아닙니다.");
         }
 
         return new ItineraryResponse(
