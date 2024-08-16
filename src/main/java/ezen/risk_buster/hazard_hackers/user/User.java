@@ -40,4 +40,9 @@ public class User extends BaseEntity {
     }
 
     public void changePassword(String rawPassword) {this.password = SecurityUtils.sha256Encrypt(rawPassword);}
+
+    public void update(UserUpdateRequestDTO request) {
+        this.username = request.newName();
+        this.email = request.newEmail();
+    }
 }
