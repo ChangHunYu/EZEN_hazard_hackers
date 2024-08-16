@@ -1,5 +1,6 @@
 package ezen.risk_buster.hazard_hackers.alert;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class AlertController {
     }
 
     @PostMapping
-    public ResponseEntity<AlertResponseDto> create(@RequestBody AlertRequestDto request) {
+    public ResponseEntity<AlertResponseDto> create(@Valid @RequestBody AlertRequestDto request) {
         AlertResponseDto responseDto = alertService.create(request);
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
@@ -39,7 +40,10 @@ public class AlertController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AlertResponseDto> update(@PathVariable Long id, @RequestBody AlertRequestDto request) {
+    public ResponseEntity<AlertResponseDto> update(
+            @PathVariable Long id,
+            @Valid @RequestBody AlertRequestDto request
+    ) {
         AlertResponseDto alertResponseDto = alertService.update(id, request);
 
         return new ResponseEntity<>(alertResponseDto, HttpStatus.OK);
