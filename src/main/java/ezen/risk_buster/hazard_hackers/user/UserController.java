@@ -43,7 +43,7 @@ public class UserController {
 
     @PutMapping("/{id}") //프로필 수정
     public ResponseEntity<UserResponseDTO> update(@PathVariable Long id,
-                                                  @RequestBody UserResponseDTO request,
+                                                  @RequestBody UserUpdateRequestDTO request,
                                                   @LoginUser String userEmail) {
         UserResponseDTO responseDTO = userService.update(id, request, userEmail);
 
