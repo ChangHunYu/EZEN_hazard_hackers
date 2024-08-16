@@ -4,7 +4,6 @@ import ezen.risk_buster.hazard_hackers.alert.Alert;
 import ezen.risk_buster.hazard_hackers.alert.AlertRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.assertj.core.api.Assertions;
@@ -18,8 +17,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @Sql("/truncate.sql")
 @ActiveProfiles("test")
@@ -67,8 +64,8 @@ class CountryTest {
         );
         continent1 = continentRepository.save(
                 Continent.builder()
-                        .continent_eng_nm("asia")
-                        .continent_nm("아시아")
+                        .continentEngNm("asia")
+                        .continentNm("아시아")
                         .build()
         );
         ;
