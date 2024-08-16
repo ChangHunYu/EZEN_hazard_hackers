@@ -210,29 +210,50 @@ class ItineraryTest {
         List<ItineraryResponse> list = extract.jsonPath().getList(
                 "", ItineraryResponse.class);
         Assertions.assertThat(list.size()).isEqualTo(1);
-        Assertions.assertThat(list.get(0).title()).isEqualTo(itinerary.getTitle(), user.getEmail());
+        Assertions.assertThat(list.get(0).title()).isEqualTo(itinerary.getTitle());
         Assertions.assertThat(list.get(0).userEmail()).isEqualTo(user.getEmail());
     }
 
     @Test
     @DisplayName("일정 수정")
     void updateItinerary(){
+        //로그인 후 토큰 발급
+        LoginRequest login = new LoginRequest(user.getEmail(), rawPassword);
+        ExtractableResponse<Response> extract1 = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .body(login)
+                .when()
+                .post("/users/login")
+                .then().log().all()
+                .statusCode(200).extract();
+        LoginResponse token = extract1.as(LoginResponse.class);
+
         ItineraryRequest request = new ItineraryRequest(
                 continent.getId(),
                 alert.getId(),
-                itinerary.getTitle(),
+                "title 수정",
                 LocalDate.now(),
                 LocalDate.now(),
-                itinerary.getDescription());
-        RestAssured
+                "description 수정");
+
+        ExtractableResponse<Response> extract = RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
                 .body(request)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
                 .when()
-                .put("/itinerary/"+itinerary.getId())
+                .put("/itinerary/" + itinerary.getId())
                 .then().log().all()
-                .statusCode(200);
+                .statusCode(200).extract();
+        ItineraryResponse response = extract.jsonPath().getObject(
+                "", ItineraryResponse.class);
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.title()).isEqualTo(request.title());
+        Assertions.assertThat(response.description()).isEqualTo(request.description());
     }
+
+
     @Test
     @DisplayName("일정 삭제")
     void deleteItinerary(){
@@ -247,6 +268,7 @@ class ItineraryTest {
         RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
+
                 .when()
                 .delete("/itinerary/"+itinerary.getId())
                 .then().log().all()

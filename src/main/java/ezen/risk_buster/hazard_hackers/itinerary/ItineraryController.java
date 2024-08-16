@@ -41,10 +41,9 @@ public class ItineraryController {
     //일정수정
     @PutMapping("/{id}")
     public ResponseEntity<ItineraryResponse> update(@PathVariable Long id,
-                                                    @RequestBody ItineraryResponse request
-                                                    ) {
-        ItineraryResponse responseDTO = itineraryService.update(id, request);
-
+                                                    @RequestBody ItineraryRequest request,
+                                                    @LoginUser String userEmail) {
+        ItineraryResponse responseDTO = itineraryService.update(id, request, userEmail);
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
