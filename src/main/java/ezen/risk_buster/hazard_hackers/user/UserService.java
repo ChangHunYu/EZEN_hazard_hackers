@@ -45,18 +45,28 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO update(Long id, UserResponseDTO request, String userEmail) {
-        User user = userRepository.findByIdAndIsDeletedFalse(id);
+    public UserResponseDTO update(Long id, UserUpdateRequestDTO request, String userEmail) {
+        // 1. userEmail로 유저가 db에 있는지 확인
+        User user = userRepository.findByEmailAndIsDeletedFalse(userEmail);
         if (user == null) {
-            throw new EntityNotFoundException("Comment Not Found");
+            throw new EntityNotFoundException("User Not Found");
         }
 
+        // 2. 찾은 유저의 id, PathVariable id와 같은지 검증
+        if (!user.getId().equals(id)) {
+            throw new EntityNotFoundException("User Not Found");
+        }
+
+        // 3. 유저 엔티티 수정
+        user.update(request);
+
+        // 4. 저장
         User savedUser = userRepository.save(user);
 
         return UserResponseDTO.builder()
-                .id(user.getId())
-                .name(user.getUsername())
-                .email(user.getEmail())
+                .id(savedUser.getId())
+                .name(savedUser.getUsername())
+                .email(savedUser.getEmail())
                 .build();
     }
 
@@ -123,5 +133,6 @@ public class UserService {
         }
 
         user.changePassword(request.newPassword());
+        userRepository.save(user);
     }
 }
