@@ -43,15 +43,23 @@ public class UserController {
 
     @PutMapping("/{id}") //프로필 수정
     public ResponseEntity<UserResponseDTO> update(@PathVariable Long id,
-                                                  @RequestBody UserResponseDTO request) {
-        UserResponseDTO responseDTO = userService.update(id, request);
+                                                  @RequestBody UserUpdateRequestDTO request,
+                                                  @LoginUser String userEmail) {
+        UserResponseDTO responseDTO = userService.update(id, request, userEmail);
 
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
+    @PatchMapping("/me") //비밀번호 수정
+    public void changePassword(@LoginUser String userEmail,
+                               @RequestBody ChangePasswordRequest request){
+        userService.changePassword(userEmail, request);
+    }
+
     @DeleteMapping("/{id}") //회원탈퇴
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        userService.delete(id);
+    public ResponseEntity<String> delete(@LoginUser String userEmail,
+                                         @PathVariable Long id) {
+        userService.delete(userEmail, id);
 
         return new ResponseEntity<>("Deleted Success",HttpStatus.OK);
     }
