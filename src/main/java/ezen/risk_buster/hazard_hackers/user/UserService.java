@@ -1,6 +1,7 @@
 package ezen.risk_buster.hazard_hackers.user;
 
 import ezen.risk_buster.hazard_hackers.common.auth.JwtProvider;
+import ezen.risk_buster.hazard_hackers.common.auth.SecurityUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class UserService {
         userRepository.save(new User(
                 request.username(),
                 request.email(),
-                request.password()));
+                SecurityUtils.sha256Encrypt(request.password())));
     }
 
 //    public void authenticateAndGenerateToken(LoginRequest request) {
