@@ -1,6 +1,5 @@
 package ezen.risk_buster.hazard_hackers.alert;
 
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +24,8 @@ public class AlertController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AlertResponseDto>> findAll() {
-        List<AlertResponseDto> alertResponseDtos = alertService.findAll();
+    public ResponseEntity<List<AlertResponseDto>> findAll(@RequestParam(required = false) String countryEngName) {
+        List<AlertResponseDto> alertResponseDtos = alertService.findAll(countryEngName);
 
         return new ResponseEntity<>(alertResponseDtos, HttpStatus.OK);
     }

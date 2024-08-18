@@ -87,8 +87,8 @@ class ItineraryTest {
         RestAssured.port = port;
         user = userRepository.save(User.builder()
                 .email("user1@gamil.com")
-                .username("test")
-                .password(hasedPassword1)
+                        .username("test")
+                        .password(hasedPassword1)
                 .build());
         alert = alertRepository.save(Alert.builder()
                 .level(1L)
@@ -103,14 +103,14 @@ class ItineraryTest {
                 .continentNm("아시아")
                 .build());
         country = countryRepository.save(Country.builder()
-                .alert(alert)
-                .mapDownloadUrl("url")
-                .continent(continent)
-                .countryEngName("Korea")
-                .countryIsoAlp2("KR")
-                .countryName("한국")
-                .flagDownloadUrl("url")
-                .mapDownloadUrl("url")
+                        .alertList(List.of(alert))
+                        .mapDownloadUrl("url")
+                        .continent(continent)
+                        .countryEngName("Korea")
+                        .countryIsoAlp2("KR")
+                        .countryName("한국")
+                        .flagDownloadUrl("url")
+                        .mapDownloadUrl("url")
                 .build());
 
 
@@ -134,24 +134,23 @@ class ItineraryTest {
 
     }
 
-
     @Test
     @DisplayName("일정 생성 테스트")
     void createItinerary() {
         //로그인 후 토큰 발급
         ItineraryRequest request = new ItineraryRequest(
+                user.getId(),
                 userCountry.getId(),
-                1L,
-                "제목",
+                "d",
                 LocalDate.now().plusDays(4),
                 LocalDate.now().plusDays(7),
-                "설명"
+                "defd"
         );
 
         ItineraryResponse response = itineraryService.create(request, user.getEmail() );
         assertThat(response).isNotNull();
-        assertThat(response.title()).isEqualTo("제목");
-        assertThat(response.description()).isEqualTo("설명");
+        assertThat(response.title()).isEqualTo("d");
+        assertThat(response.description()).isEqualTo("defd");
     }
 
 
@@ -180,7 +179,6 @@ class ItineraryTest {
                 .get("/itinerary/" + itinerary.getId())
                 .then().log().all()
                 .statusCode(200).extract();
-
         ItineraryResponse response = extract.as(ItineraryResponse.class);
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.title()).isEqualTo(itinerary.getTitle());
@@ -273,6 +271,15 @@ class ItineraryTest {
                 .then().log().all()
                 .statusCode(200).extract();
         LoginResponse token = extract1.as(LoginResponse.class);
+
+        ItineraryRequest request2 = new ItineraryRequest(
+                user.getId(),
+                userCountry.getId(),
+                "d",
+                LocalDate.now().plusDays(4),
+                LocalDate.now().plusDays(7),
+                "defd"
+        );
 
         //삭제 전 일정 조회
         Itinerary itineraryBeforeDelete = itineraryRepository.findByIdAndIsDeletedFalse(itinerary.getId());

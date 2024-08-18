@@ -2,6 +2,8 @@ package ezen.risk_buster.hazard_hackers.country;
 
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ContinentService {
     private final ContinentRepository continentRepository;
@@ -19,5 +21,15 @@ public class ContinentService {
                 continent.getId(),
                 continent.getContinentEngNm(),
                 continent.getContinentNm());
+    }
+
+    public List<ContinentResponse> findAll() {
+        List<Continent> continents = continentRepository.findAll();
+        return continents.stream().map(
+                c -> new ContinentResponse(
+                c.getId(),
+                c.getContinentEngNm(),
+                c.getContinentNm())
+        ).toList();
     }
 }

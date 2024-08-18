@@ -4,6 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/continent")
 public class ContinentController {
@@ -14,8 +16,15 @@ public class ContinentController {
     }
 
     @PostMapping
-    public ResponseEntity<ContinentResponse> Create(@RequestBody ContinentRequest request) {
+    public ResponseEntity<ContinentResponse> create(@RequestBody ContinentRequest request) {
         ContinentResponse response = continentService.create(request);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ContinentResponse>> findAll() {
+        List<ContinentResponse> response = continentService.findAll();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
