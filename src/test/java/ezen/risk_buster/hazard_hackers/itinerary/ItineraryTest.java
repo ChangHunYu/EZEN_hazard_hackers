@@ -89,20 +89,11 @@ class ItineraryTest {
                         .username("test")
                         .password(hasedPassword1)
                 .build());
-        alert = alertRepository.save(Alert.builder()
-                        .level(1L)
-                        .dangMapDownloadUrl("url")
-                        .description("alert")
-                        .remark("test")
-                        .message("alert")
-                        .regionType("test")
-                .build());
         continent = continentRepository.save(Continent.builder()
                 .continentEngNm("asia")
                 .continentNm("아시아")
                 .build());
         country = countryRepository.save(Country.builder()
-                        .alert(alert)
                         .mapDownloadUrl("url")
                         .continent(continent)
                         .countryEngName("Korea")
@@ -110,6 +101,15 @@ class ItineraryTest {
                         .countryName("한국")
                         .flagDownloadUrl("url")
                         .mapDownloadUrl("url")
+                .build());
+        alert = alertRepository.save(Alert.builder()
+                        .country(country)
+                        .level(1L)
+                        .dangMapDownloadUrl("url")
+                        .description("alert")
+                        .remark("test")
+                        .message("alert")
+                        .regionType("test")
                 .build());
 
 

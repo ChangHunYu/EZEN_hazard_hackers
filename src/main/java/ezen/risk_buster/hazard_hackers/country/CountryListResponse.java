@@ -1,25 +1,30 @@
 package ezen.risk_buster.hazard_hackers.country;
 
-public record CountryResponse(
+import ezen.risk_buster.hazard_hackers.alert.Alert;
+
+import java.util.Comparator;
+
+public record CountryListResponse(
         Long id,
         String continentName,
-//        Long alertLevel,
+        Long alertId,
+        Long alertLevel,
         String countryEngName,
         String countryIsoAlp2,
         String countryName,
         String flagDownloadUrl,
         String mapDownloadUrl
 ) {
-        public static CountryResponse of(Country country) {
-//                Long alertLevel = 0L;
-//                if (country.getAlert() != null) {
-//                        alertLevel = country.getAlert().getLevel();
-//                }
+        public static CountryListResponse of(Country country) {
+                Alert latestAlert = country.getAlertList().stream()
+                        .max(Comparator.comparing(Alert::getWrittenDate)).orElse(null);
 
-                return new CountryResponse(
+
+                return new CountryListResponse(
                         country.getId(),
                         country.getContinent().getContinentNm(),
-//                        alertLevel,
+                        latestAlert.getId(),
+                        latestAlert.getLevel(),
                         country.getCountryEngName(),
                         country.getCountryIsoAlp2(),
                         country.getCountryName(),
