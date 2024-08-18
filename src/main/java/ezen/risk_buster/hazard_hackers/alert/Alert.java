@@ -5,6 +5,8 @@ import ezen.risk_buster.hazard_hackers.country.Country;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -18,9 +20,14 @@ public class Alert extends BaseEntity {
 
     private Long level;
 
+    @ManyToOne
+    @JoinColumn(name = "country_id", nullable = false)
+    private Country country;
+
     @Column(nullable = false)
     private String message;
 
+    @Column(length = 4000)
     private String description;
 
     private String dangMapDownloadUrl; // 위험 지도 + 정보
@@ -29,9 +36,9 @@ public class Alert extends BaseEntity {
 
     private String remark; // 위험 지역 ex) 전 지역
 
+    private LocalDate writtenDate;
+
     public void updateMessage(String message) {
         this.message = message;
     }
-
-
 }

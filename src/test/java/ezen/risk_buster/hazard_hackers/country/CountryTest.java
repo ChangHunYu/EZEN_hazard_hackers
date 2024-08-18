@@ -4,7 +4,6 @@ import ezen.risk_buster.hazard_hackers.alert.Alert;
 import ezen.risk_buster.hazard_hackers.alert.AlertRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.assertj.core.api.Assertions;
@@ -19,12 +18,10 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @Sql("/truncate.sql")
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)
-class CountryTest {
+public class CountryTest {
     @LocalServerPort
     int port;
 
@@ -37,44 +34,26 @@ class CountryTest {
     @Autowired
     CountryRepository countryRepository;
 
-    static Alert alert1;
-    static Alert alert2;
 
     static Continent continent1;
 
     static Country country1;
     static Country country2;
+    static Alert alert1;
+    static Alert alert2;
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
-        alert1 = alertRepository.save(
-                Alert.builder()
-                        .level(0L)
-                        .message("message")
-                        .description("")
-                        .remark("")
-                        .regionType("")
-                        .build()
-        );
-        alert2 = alertRepository.save(
-                Alert.builder()
-                        .level(1L)
-                        .message("위험경보1단계")
-                        .description("")
-                        .remark("")
-                        .regionType("")
-                        .build()
-        );
+
         continent1 = continentRepository.save(
                 Continent.builder()
-                        .continent_eng_nm("asia")
-                        .continent_nm("아시아")
+                        .continentEngNm("asia")
+                        .continentNm("아시아")
                         .build()
         );
         ;
         country1 = countryRepository.save(
                 Country.builder()
-                        .alert(alert1)
                         .continent(continent1)
                         .countryEngName("Japan")
                         .countryIsoAlp2("JP")
@@ -85,7 +64,6 @@ class CountryTest {
         );
         country2 = countryRepository.save(
                 Country.builder()
-                        .alert(alert1)
                         .continent(continent1)
                         .countryEngName("China")
                         .countryIsoAlp2("CH")
@@ -94,6 +72,30 @@ class CountryTest {
                         .mapDownloadUrl("http://중국.지도.url")
                         .build()
         );
+
+        alert1 = alertRepository.save(
+                Alert.builder()
+                        .country(country1)
+                        .level(1L)
+                        .message("여행 경보 1단계")
+                        .description("여행 경보가 1단계로 발령되었습니다.")
+                        .regionType("해당 국가의 수도권")
+                        .remark("야간에 외출은 가급적 삼가해주시기 바랍니다.")
+                        .dangMapDownloadUrl("http://경보.지도1.url")
+                        .build()
+        );
+
+        alert2 = alertRepository.save(
+                Alert.builder()
+                        .country(country2)
+                        .level(2L)
+                        .message("여행 경보 2단계")
+                        .description("여행 경보가 2단계로 발령되었습니다.")
+                        .regionType("국가 전체")
+                        .remark("최대한 야외 활동을 자제해주시기 바랍니다.")
+                        .dangMapDownloadUrl("http://경보.지도2.url")
+                        .build())
+        ;
     }
 
     @Test
@@ -101,7 +103,6 @@ class CountryTest {
     void createCountry() {
         CountryRequest request = new CountryRequest(
                 continent1.getId(),
-                alert1.getId(),
                 "Repulic of Korea",
                 "KR",
                 "대한민국",
@@ -141,7 +142,7 @@ class CountryTest {
                 .get("/country")
                 .then().log().all()
                 .statusCode(200).extract();
-        List<CountryResponse> list = extract.jsonPath().getList("", CountryResponse.class);
+        List<CountryListResponse> list = extract.jsonPath().getList("", CountryListResponse.class);
         Assertions.assertThat(list.size()).isEqualTo(2);
         Assertions.assertThat(list.get(0).countryName()).isEqualTo(country1.getCountryName());
         Assertions.assertThat(list.get(1).countryName()).isEqualTo(country2.getCountryName());
@@ -152,7 +153,6 @@ class CountryTest {
     void updateCountry() {
         CountryRequest request = new CountryRequest(
                 continent1.getId(),
-                alert2.getId(),
                 country1.getCountryEngName(),
                 country1.getCountryIsoAlp2(),
                 country1.getCountryName(),

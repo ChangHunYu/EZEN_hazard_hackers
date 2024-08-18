@@ -1,5 +1,6 @@
 package ezen.risk_buster.hazard_hackers.country;
 
+import ezen.risk_buster.hazard_hackers.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class Continent {
+public class Continent extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,8 +17,8 @@ public class Continent {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String continent_eng_nm; // 대륙 영문 이름
+    private String continentEngNm; // 대륙 영문 이름
 
     @Column(nullable = false, unique = true)
-    private String continent_nm; // 대륙 한글 이름
+    private String continentNm; // 대륙 한글 이름
 }

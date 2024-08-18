@@ -8,8 +8,7 @@ import org.hibernate.validator.constraints.URL;
 public record CountryRequest(
         @NotNull
         Long continentId,
-        @NotNull
-        Long alertId,
+//        Long alertId,
         @NotBlank(message = "영문 국가 이름은 필수입니다.")
         String countryEngName,
         @Pattern(regexp = "^[A-Z]{2}$", message = "countryIsoAlp2는 유효한 ISO 3166-1 alpha-2 코드여야 합니다.")

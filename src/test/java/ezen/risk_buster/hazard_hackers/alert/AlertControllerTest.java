@@ -1,5 +1,9 @@
 package ezen.risk_buster.hazard_hackers.alert;
 
+import ezen.risk_buster.hazard_hackers.country.Continent;
+import ezen.risk_buster.hazard_hackers.country.ContinentRepository;
+import ezen.risk_buster.hazard_hackers.country.Country;
+import ezen.risk_buster.hazard_hackers.country.CountryRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
@@ -17,9 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.time.LocalDate;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 
 @ActiveProfiles("test")
@@ -38,13 +41,37 @@ class AlertControllerTest {
 
     static Alert alert1;
     static Alert alert2;
+    static Country country1;
+    static Continent continent1;
+
+    @Autowired
+    private CountryRepository countryRepository;
+    @Autowired
+    private ContinentRepository continentRepository;
 
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
+        continent1 = continentRepository.save(
+                Continent.builder()
+                        .continentEngNm("asia")
+                        .continentNm("아시아")
+                        .build()
+        );
+        country1 = countryRepository.save(
+                Country.builder()
+                        .continent(continent1)
+                        .countryEngName("Japan")
+                        .countryIsoAlp2("JP")
+                        .countryName("일본")
+                        .flagDownloadUrl("http://일본.국기.url")
+                        .mapDownloadUrl("http://일본.지도.url")
+                        .build()
+        );
 
         alert1 = alertRepository.save(
                 Alert.builder()
+                        .country(country1)
                         .level(1L)
                         .message("여행 경보 1단계")
                         .description("여행 경보가 1단계로 발령되었습니다.")
@@ -56,6 +83,7 @@ class AlertControllerTest {
 
         alert2 = alertRepository.save(
                 Alert.builder()
+                        .country(country1)
                         .level(2L)
                         .message("여행 경보 2단계")
                         .description("여행 경보가 2단계로 발령되었습니다.")
@@ -71,12 +99,14 @@ class AlertControllerTest {
     void create() {
 
         AlertRequestDto request = new AlertRequestDto(
+                alert1.getCountry().getCountryEngName(),
                 alert1.getLevel(),
                 alert1.getMessage(),
                 alert1.getDescription(),
                 alert1.getRegionType(),
                 alert1.getRemark(),
-                alert1.getDangMapDownloadUrl()
+                alert1.getDangMapDownloadUrl(),
+                LocalDate.now()
         );
 
         RestAssured
@@ -128,12 +158,14 @@ class AlertControllerTest {
     void update() {
 
         AlertRequestDto request = new AlertRequestDto(
+                country1.getCountryEngName(),
                 alert2.getLevel(),
                 alert2.getMessage(),
                 alert2.getDescription(),
                 alert2.getRegionType(),
                 alert2.getRemark(),
-                alert2.getDangMapDownloadUrl()
+                alert2.getDangMapDownloadUrl(),
+                LocalDate.now()
         );
 
         RestAssured
