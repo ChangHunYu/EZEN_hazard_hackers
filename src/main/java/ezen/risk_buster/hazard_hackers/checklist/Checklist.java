@@ -32,7 +32,11 @@ public class Checklist extends BaseEntity {
     private String title;
 
     @OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Item> items;
+    private List<Item> items = new ArrayList<>();
+
+    private boolean isDeleted;
+
+
 
     public void updateItinerary(Itinerary itinerary) {
         this.itinerary = itinerary;
