@@ -37,7 +37,6 @@ public class ItineraryService {
     }
 
 
-
     //일정생성
     @Transactional
     public ItineraryResponse create(ItineraryRequest request, String userEmail) {
@@ -48,10 +47,10 @@ public class ItineraryService {
         }
 
         // UserCountry가 존재하는지 확인
-        UserCountry userCountry = userCountryRepostiory.findByUserAndCountry_Id(user, countryId).orElse(null);
+        UserCountry userCountry = userCountryRepostiory.findByUserAndCountry_Id(user, request.countryId()).orElse(null);
         if (userCountry == null) {
             // UserCountry가 존재하지 않으면 새로 생성
-            Country country = countryRepository.findByIdAndIsDeletedFalse(countryId);
+            Country country = countryRepository.findByIdAndIsDeletedFalse(request.countryId());
             userCountry = UserCountry.builder()
                     .user(user)
                     .country(country)

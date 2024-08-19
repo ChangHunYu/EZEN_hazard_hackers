@@ -7,6 +7,7 @@ import java.time.LocalDate;
 public record ItineraryRequest(
 //        User Id,
         Long userCountryId,
+        Long countryId,
         Long id,
         String title,
         LocalDate startDate,
