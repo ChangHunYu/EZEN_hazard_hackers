@@ -135,6 +135,7 @@ public class ItineraryService {
 
         return itineraries.stream()
                 .map(i -> ItineraryResponse.builder()
+                        .id(i.getId())
                         .userEmail(i.getUser().getEmail())
                         .userCountryEngName(i.getUserCountry().getCountry().getCountryEngName())
                         .title(i.getTitle())
