@@ -116,16 +116,14 @@ public class ChecklistService {
         );
     }
 
-    public List<ChecklistDto> getChecklistsByUserId(String userEmail, Long userId) {
+    public List<ChecklistDto> getChecklistsByUserId(String userEmail) {
         // 사용자 권한 검증
         User requestingUser = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("요청한 사용자를 찾을 수 없습니다."));
 
-        if (!requestingUser.getId().equals(userId)) {
-            throw new RuntimeException("다른 사용자의 체크리스트에 접근할 권한이 없습니다.");
-        }
 
-        List<Checklist> checklists = checklistRepository.findAllByUserId(userId);
+
+        List<Checklist> checklists = checklistRepository.findAllByUserEmailAndUserIsDeletedFalseAndIsDeletedFalse(userEmail);
         List<ChecklistDto> checklistDtos = checklists.stream()
                 .map(checklist -> new ChecklistDto(
                         checklist.getId(),

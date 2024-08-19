@@ -37,9 +37,9 @@ public class ChecklistController {
         return checklistService.getChecklist(userEmail, checklistId);
     }
 
-    @GetMapping("/user/{userId}")
-    public List<ChecklistDto> getChecklistsByUserId(@LoginUser String userEmail, @PathVariable Long userId) {
-        return checklistService.getChecklistsByUserId(userEmail, userId);
+    @GetMapping
+    public List<ChecklistDto> getChecklistsByUserId(@LoginUser String userEmail) {
+        return checklistService.getChecklistsByUserId(userEmail);
     }
 
     @PutMapping("/{checklistId}")
