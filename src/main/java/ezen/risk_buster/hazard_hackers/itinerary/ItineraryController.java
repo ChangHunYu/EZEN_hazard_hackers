@@ -1,6 +1,7 @@
 package ezen.risk_buster.hazard_hackers.itinerary;
 
 import ezen.risk_buster.hazard_hackers.common.auth.LoginUser;
+import ezen.risk_buster.hazard_hackers.user.UserCountry;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,8 @@ import java.util.List;
 @RestController
 public class ItineraryController {
     private final ItineraryService itineraryService;
+
+
 
     public ItineraryController(ItineraryService itineraryService) {
         this.itineraryService = itineraryService;
