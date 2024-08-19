@@ -1,6 +1,7 @@
 package ezen.risk_buster.hazard_hackers.checklist;
 
 import ezen.risk_buster.hazard_hackers.common.BaseEntity;
+import ezen.risk_buster.hazard_hackers.itinerary.Itinerary;
 import ezen.risk_buster.hazard_hackers.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,4 +29,11 @@ public class Checklist extends BaseEntity {
 
     @OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Item> items;
+
+    @OneToOne(mappedBy = "checklist")
+    private Itinerary itinerary;
+
+    public void updateItinerary(Itinerary itinerary) {
+        this.itinerary = itinerary;
+    }
 }
