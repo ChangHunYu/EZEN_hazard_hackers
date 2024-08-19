@@ -46,6 +46,7 @@ class AlertControllerTest {
 
     @Autowired
     private CountryRepository countryRepository;
+
     @Autowired
     private ContinentRepository continentRepository;
 
@@ -78,6 +79,7 @@ class AlertControllerTest {
                         .regionType("해당 국가의 수도권")
                         .remark("야간에 외출은 가급적 삼가해주시기 바랍니다.")
                         .dangMapDownloadUrl("http://경보.지도1.url")
+                        .writtenDate(LocalDate.now())
                         .build()
         );
 
@@ -90,6 +92,7 @@ class AlertControllerTest {
                         .regionType("국가 전체")
                         .remark("최대한 야외 활동을 자제해주시기 바랍니다.")
                         .dangMapDownloadUrl("http://경보.지도2.url")
+                        .writtenDate(LocalDate.now().minusDays(7L))
                         .build()
         );
     }
