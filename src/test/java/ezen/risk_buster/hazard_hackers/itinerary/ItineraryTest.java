@@ -217,6 +217,29 @@ class ItineraryTest {
                 .statusCode(200).extract();
         LoginResponse token = extract1.as(LoginResponse.class);
 
+        //일정 생성
+        ItineraryRequest itineraryRequest = new ItineraryRequest(
+                userCountry.getId(),
+                country.getId(),
+                "일정",
+                LocalDate.parse("2024-08-20"),
+                LocalDate.parse("2024-09-09"),
+                "설명"
+        );
+        ItineraryResponse itinerary = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
+                .body(itineraryRequest)
+                .when()
+                .post("/itinerary")
+                .then().log().all()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getObject("", ItineraryResponse.class);
+
+
         //목록검증
         ExtractableResponse<Response> extract = RestAssured
                 .given().log().all()
@@ -230,7 +253,7 @@ class ItineraryTest {
         List<ItineraryResponse> list = extract.jsonPath().getList(
                 "", ItineraryResponse.class);
         Assertions.assertThat(list.size()).isEqualTo(1);
-//        Assertions.assertThat(list.get(0).title()).isEqualTo(itinerary.getTitle());
+        Assertions.assertThat(list.get(0).title()).isEqualTo(itinerary.title());
         Assertions.assertThat(list.get(0).userEmail()).isEqualTo(user.getEmail());
     }
 
