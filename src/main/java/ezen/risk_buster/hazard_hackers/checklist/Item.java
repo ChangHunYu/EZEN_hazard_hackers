@@ -3,6 +3,7 @@ package ezen.risk_buster.hazard_hackers.checklist;
 import ezen.risk_buster.hazard_hackers.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.boot.autoconfigure.flyway.FlywayProperties;
 
 @Entity
 @Getter
@@ -25,5 +26,7 @@ public class Item extends BaseEntity {
     @Builder.Default
     @Column(nullable = false)
     private Boolean isChecked = false;
+
+
 
 }

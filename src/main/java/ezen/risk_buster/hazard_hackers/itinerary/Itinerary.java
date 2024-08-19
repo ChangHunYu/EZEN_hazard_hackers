@@ -1,5 +1,6 @@
 package ezen.risk_buster.hazard_hackers.itinerary;
 
+import ezen.risk_buster.hazard_hackers.checklist.Checklist;
 import ezen.risk_buster.hazard_hackers.common.BaseEntity;
 import ezen.risk_buster.hazard_hackers.country.Country;
 import ezen.risk_buster.hazard_hackers.user.User;
@@ -24,7 +25,7 @@ public class Itinerary extends BaseEntity {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "user_country_id", nullable = false)
+    @JoinColumn(name = "user_country_id", nullable = true)
     private UserCountry userCountry;
 
     @Column(nullable = false)

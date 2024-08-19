@@ -1,10 +1,13 @@
 package ezen.risk_buster.hazard_hackers.checklist;
 
+import ezen.risk_buster.hazard_hackers.itinerary.Itinerary;
+import ezen.risk_buster.hazard_hackers.itinerary.ItineraryRepository;
 import ezen.risk_buster.hazard_hackers.user.User;
 import ezen.risk_buster.hazard_hackers.user.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +24,57 @@ public class ChecklistService {
     private UserRepository userRepository;
 
     @Autowired
+    private ItineraryRepository itineraryRepository;
+
+    @Autowired
     private ItemRepository itemRepository;
 
+    @Autowired
     public ChecklistService(ChecklistRepository checklistRepository) {
         this.checklistRepository = checklistRepository;
+    }
+
+    public ChecklistDto getChecklistByItineraryId(String userEmail, Long itineraryId) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + userEmail));
+
+        Checklist checklist = checklistRepository.findByItinerary_Id(itineraryId);
+
+        if (checklist == null) {
+            return null;
+        }
+
+        // 사용자 권한 확인
+        if (!checklist.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("User does not have permission to access this checklist");
+        }
+
+        return mapToChecklistDto(checklist);
+    }
+    private ChecklistDto mapToChecklistDto(Checklist checklist) {
+        return new ChecklistDto(
+                checklist.getId(),
+                checklist.getUser().getId(),
+                checklist.getItinerary() != null ? checklist.getItinerary().getId() : null,
+                checklist.getTitle(),
+                mapToItemDtos(checklist),
+                checklist.isDeleted()
+        );
+    }
+
+    private List<ItemDto> mapToItemDtos(Checklist checklist) {
+        return checklist.getItems().stream()
+                .map(item -> new ItemDto(
+                        item.getId(),
+                        item.getIsChecked(),
+                        item.isDeleted(),
+                        checklist.getId(),
+                        item.getCreatedAt(),
+                        item.getDeletedAt(),
+                        item.getUpdatedAt(),
+                        item.getDescription()
+                ))
+                .collect(Collectors.toList());
     }
 
 
@@ -148,6 +198,7 @@ public class ChecklistService {
 
         return checklistDtos;
     }
+
 
     @Transactional
     public ChecklistDto updateChecklist(String userEmail, Long checklistId, ChecklistUpdateDto request) {

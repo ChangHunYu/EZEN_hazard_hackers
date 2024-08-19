@@ -9,8 +9,12 @@ import java.util.List;
 public record ChecklistDto(
         Long id,
         Long userId,
+        Long itineraryId,
         String title,
         List<ItemDto> items,
         boolean deleted
 ) {
+    public ChecklistDto(Long id, Long userId, String title, List<ItemDto> items, boolean isDeleted) {
+        this(id, userId, null, title, items, isDeleted);
+    }
 }
