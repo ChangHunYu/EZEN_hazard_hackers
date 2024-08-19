@@ -13,4 +13,5 @@ public record ItineraryRequest(
         LocalDate endDate,
         String description
 ) {
+
 }

@@ -1,5 +1,11 @@
 package ezen.risk_buster.hazard_hackers.itinerary;
 
+import ezen.risk_buster.hazard_hackers.country.Country;
+import ezen.risk_buster.hazard_hackers.country.CountryRepository;
+import ezen.risk_buster.hazard_hackers.user.User;
+import ezen.risk_buster.hazard_hackers.user.UserCountry;
+import ezen.risk_buster.hazard_hackers.user.UserCountryRepostiory;
+import ezen.risk_buster.hazard_hackers.user.UserRepository;
 import ezen.risk_buster.hazard_hackers.checklist.Checklist;
 import ezen.risk_buster.hazard_hackers.checklist.ChecklistService;
 import ezen.risk_buster.hazard_hackers.user.*;
@@ -9,9 +15,9 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class ItineraryService {
@@ -19,14 +25,18 @@ public class ItineraryService {
     private final ItineraryRepository itineraryRepository;
     private final UserRepository userRepository;
     private final UserCountryRepostiory userCountryRepostiory;
+    private final CountryRepository countryRepository;
     private final ChecklistService checklistService;
 
-    public ItineraryService(ItineraryRepository itineraryRepository, UserRepository userRepository, UserCountryRepostiory userCountryRepostiory, ChecklistService checklistService) {
+    public ItineraryService(ItineraryRepository itineraryRepository, UserRepository userRepository, UserCountryRepostiory userCountryRepostiory, ChecklistService checklistService, CountryRepository countryRepository) {
         this.itineraryRepository = itineraryRepository;
         this.userRepository = userRepository;
         this.userCountryRepostiory = userCountryRepostiory;
+        this.countryRepository = countryRepository;
         this.checklistService = checklistService;
     }
+
+
 
     //일정생성
     @Transactional
@@ -37,9 +47,17 @@ public class ItineraryService {
             throw new IllegalArgumentException("user not found");
         }
 
-        UserCountry userCountry = userCountryRepostiory.findById(request.userCountryId()).orElse(null);
+        // UserCountry가 존재하는지 확인
+        UserCountry userCountry = userCountryRepostiory.findByUserAndCountry_Id(user, countryId).orElse(null);
         if (userCountry == null) {
-            throw new IllegalArgumentException("userCountry not found");
+            // UserCountry가 존재하지 않으면 새로 생성
+            Country country = countryRepository.findByIdAndIsDeletedFalse(countryId);
+            userCountry = UserCountry.builder()
+                    .user(user)
+                    .country(country)
+                    .build();
+
+            userCountry = userCountryRepostiory.save(userCountry);// 새 UserCountry 저장
         }
 
         Itinerary itinerary = Itinerary.builder()
@@ -57,12 +75,12 @@ public class ItineraryService {
                 itinerary.getEndDate() + " )";
         Checklist checklist = checklistService.createChecklist(user.getId(), cheklistTitle);
         itinerary.addCheklist(checklist);
-        itineraryRepository.save(itinerary);
+        itinerary = itineraryRepository.save(itinerary);
 
         return new ItineraryResponse(
                 itinerary.getId(),
                 itinerary.getUser().getEmail(),
-                itinerary.getUserCountry().getCountry().getCountryName(),
+                itinerary.getUserCountry().getCountry().getCountryEngName(),
                 itinerary.getTitle(),
                 itinerary.getStartDate(),
                 itinerary.getEndDate(),
@@ -90,17 +108,18 @@ public class ItineraryService {
         if (!user.getId().equals(itinerary.getUser().getId())) {
             throw new IllegalArgumentException("본인 일정이 아닙니다");
         }
-        return ItineraryResponse.builder()
-                .id(itinerary.getId())
-                .userEmail(itinerary.getUser().getEmail())
-                .userCountryName(itinerary.getUserCountry().getCountry().getCountryName())
-                .title(itinerary.getTitle())
-                .startDate(itinerary.getStartDate())
-                .endDate(itinerary.getEndDate())
-                .description(itinerary.getDescription())
-                .checklistId(itinerary.getChecklist().getId())
-                .checklistTitle(itinerary.getChecklist().getTitle())
-                .build();
+
+        return new ItineraryResponse(
+                itinerary.getId(),
+                itinerary.getUser().getEmail(),
+                itinerary.getUserCountry().getCountry().getCountryEngName(),
+                itinerary.getTitle(),
+                itinerary.getStartDate(),
+                itinerary.getEndDate(),
+                itinerary.getDescription(),
+                itinerary.getChecklist().getId(),
+                itinerary.getChecklist().getTitle()
+        );
     }
 
     //일정 목록 조회
@@ -117,7 +136,7 @@ public class ItineraryService {
         return itineraries.stream()
                 .map(i -> ItineraryResponse.builder()
                         .userEmail(i.getUser().getEmail())
-                        .userCountryName(i.getUserCountry().getCountry().getCountryName())
+                        .userCountryEngName(i.getUserCountry().getCountry().getCountryEngName())
                         .title(i.getTitle())
                         .description(i.getDescription())
                         .startDate(i.getStartDate())
@@ -157,7 +176,7 @@ public class ItineraryService {
         return ItineraryResponse.builder()
                 .id(updatedItinerary.getId())
                 .userEmail(updatedItinerary.getUser().getEmail())
-                .userCountryName(updatedItinerary.getUserCountry().getCountry().getCountryName())
+                .userCountryEngName(updatedItinerary.getUserCountry().getCountry().getCountryEngName())
                 .title(updatedItinerary.getTitle())
                 .startDate(updatedItinerary.getStartDate())
                 .endDate(updatedItinerary.getEndDate())

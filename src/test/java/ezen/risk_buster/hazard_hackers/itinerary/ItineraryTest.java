@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Sql("/truncate.sql")
 @ActiveProfiles("test")
@@ -113,9 +114,6 @@ class ItineraryTest {
                         .mapDownloadUrl("url")
                 .build());
 
-
-
-
         userCountry = userCountryRepostiory.save(UserCountry.builder()
                 .country(country)
                 .user(user)
@@ -131,7 +129,6 @@ class ItineraryTest {
                         .endDate(LocalDate.now().plusDays(7))
                         .build()
         );
-
     }
 
     @Test
@@ -147,10 +144,11 @@ class ItineraryTest {
                 "defd"
         );
 
-        ItineraryResponse response = itineraryService.create(request, user.getEmail() );
+        ItineraryResponse response = itineraryService.create(request, user.getEmail(), user.getId());
         assertThat(response).isNotNull();
         assertThat(response.title()).isEqualTo("d");
         assertThat(response.description()).isEqualTo("defd");
+
     }
 
 
