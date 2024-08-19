@@ -27,18 +27,14 @@ public class CountryService {
             throw new IllegalArgumentException("id에 해당하는 continent가 없음");
         }
 
-        Alert alert = alertRepository.findById(request.alertId()).orElse(null);
-        if (alert == null) {
-            throw new IllegalArgumentException("id에 해당하는 alert가 없음");
-        }
-
         Country country = countryRepository.save(Country.builder()
                 .continent(continent)
-                .alert(alert)
                 .countryEngName(request.countryEngName())
                 .countryIsoAlp2(request.countryIsoAlp2())
                 .countryName(request.countryName())
-                .build());
+                .flagDownloadUrl(request.flagDownloadUrl())
+                .mapDownloadUrl(request.mapDownloadUrl())
+                .build());;
 
         return CountryResponse.of(country);
     }
@@ -48,9 +44,9 @@ public class CountryService {
         return CountryResponse.of(country);
     }
 
-    public List<CountryResponse> findAll() {
+    public List<CountryListResponse> findAll() {
         List<Country> countries = countryRepository.findAll();
-        return countries.stream().map(CountryResponse::of).toList();
+        return countries.stream().map(CountryListResponse::of).toList();
     }
 
     @Transactional
@@ -66,15 +62,15 @@ public class CountryService {
             throw new IllegalArgumentException("id에 해당하는 continent가 없음");
         }
 
-        Alert alert = alertRepository.findById(request.alertId()).orElse(null);
-        if (alert == null) {
-            throw new IllegalArgumentException("id에 해당하는 alert가 없음");
-        }
+//        Alert alert = alertRepository.findById(request.alertId()).orElse(null);
+//        if (alert == null) {
+//            throw new IllegalArgumentException("id에 해당하는 alert가 없음");
+//        }
 
         Country updateCountry = Country.builder()
                 .id(country.getId())
                 .continent(continent)
-                .alert(alert)
+//                .alert(alert)
                 .countryEngName(request.countryEngName())
                 .flagDownloadUrl(request.flagDownloadUrl())
                 .mapDownloadUrl(request.mapDownloadUrl())

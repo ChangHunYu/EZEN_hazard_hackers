@@ -26,8 +26,8 @@ public class AlertController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AlertResponseDto>> findAll() {
-        List<AlertResponseDto> alertResponseDtos = alertService.findAll();
+    public ResponseEntity<List<AlertResponseDto>> findAll(@RequestParam(required = false) String countryEngName) {
+        List<AlertResponseDto> alertResponseDtos = alertService.findAll(countryEngName);
 
         return new ResponseEntity<>(alertResponseDtos, HttpStatus.OK);
     }

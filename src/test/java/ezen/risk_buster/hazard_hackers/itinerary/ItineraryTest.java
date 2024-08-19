@@ -89,27 +89,27 @@ class ItineraryTest {
                         .username("test")
                         .password(hasedPassword1)
                 .build());
-        alert = alertRepository.save(Alert.builder()
-                        .level(1L)
-                        .dangMapDownloadUrl("url")
-                        .description("")
-                        .remark("")
-                        .message("")
-                        .regionType("")
-                .build());
         continent = continentRepository.save(Continent.builder()
-                .continent_eng_nm("")
-                .continent_nm("")
+                .continentEngNm("asia")
+                .continentNm("아시아")
                 .build());
         country = countryRepository.save(Country.builder()
-                        .alert(alert)
-                        .mapDownloadUrl("")
+                        .mapDownloadUrl("url")
                         .continent(continent)
-                        .countryEngName("")
-                        .countryIsoAlp2("")
-                        .countryName("")
-                        .flagDownloadUrl("")
-                        .mapDownloadUrl("")
+                        .countryEngName("Korea")
+                        .countryIsoAlp2("KR")
+                        .countryName("한국")
+                        .flagDownloadUrl("url")
+                        .mapDownloadUrl("url")
+                .build());
+        alert = alertRepository.save(Alert.builder()
+                        .country(country)
+                        .level(1L)
+                        .dangMapDownloadUrl("url")
+                        .description("alert")
+                        .remark("test")
+                        .message("alert")
+                        .regionType("test")
                 .build());
 
 
@@ -303,7 +303,6 @@ class ItineraryTest {
                 .statusCode(200).extract();
 
         //삭제 후 일정 재조회
-        Itinerary itineraryAfterDelete = itineraryRepository.findById(itinerary.getId()).orElse(null);
         ExtractableResponse<Response> extract = RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
@@ -314,9 +313,10 @@ class ItineraryTest {
                 .statusCode(500).extract();
 
         Assertions.assertThat(itineraryBeforeDelete).isNotNull();
-        Assertions.assertThat(itineraryAfterDelete).isNull();
+        // soft-delete 적용으로 id로 찾아짐
+        Itinerary itineraryAfterDelete = itineraryRepository.findById(itinerary.getId()).orElse(null);
+        Assertions.assertThat(itineraryAfterDelete).isNotNull();
+        // soft-delete 적용으로 Isdeleted = false 여서 못찾음
         Assertions.assertThat(itineraryRepository.findByIdAndIsDeletedFalse(itinerary.getId())).isNull();
-
-
     }
 }

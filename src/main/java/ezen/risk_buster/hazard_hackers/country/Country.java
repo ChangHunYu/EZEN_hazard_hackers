@@ -5,6 +5,9 @@ import ezen.risk_buster.hazard_hackers.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -17,9 +20,9 @@ public class Country extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "alert_id", nullable = false)
-    private Alert alert;
+    @Builder.Default
+    @OneToMany(mappedBy = "country", cascade = CascadeType.ALL)
+    private List<Alert> alertList = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "continent_id", nullable = false)
