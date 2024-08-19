@@ -12,19 +12,17 @@ import java.util.List;
 @RestController
 public class ItineraryController {
     private final ItineraryService itineraryService;
-    private final ItineraryRequest itineraryRequest;
 
 
 
-    public ItineraryController(ItineraryService itineraryService, ItineraryRequest itineraryRequest) {
+    public ItineraryController(ItineraryService itineraryService) {
         this.itineraryService = itineraryService;
-        this.itineraryRequest = itineraryRequest;
     }
 
     //일정생성
     @PostMapping
-    public ResponseEntity<String> create(@RequestBody ItineraryRequest itinerary, @LoginUser String userEmail, @PathVariable Long countryId ){
-        ItineraryResponse itineraryResponse = itineraryService.create(itinerary, userEmail, countryId);
+    public ResponseEntity<String> create(@RequestBody ItineraryRequest itinerary, @LoginUser String userEmail){
+        ItineraryResponse itineraryResponse = itineraryService.create(itinerary, userEmail);
         return new ResponseEntity<>(itineraryResponse.title()+"일정생성에 성공했습니다.", HttpStatus.OK);
     }
 

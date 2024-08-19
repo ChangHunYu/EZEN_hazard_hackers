@@ -30,7 +30,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.codehaus.groovy.runtime.DefaultGroovyMethods.any;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
 
 @Sql("/truncate.sql")
 @ActiveProfiles("test")
@@ -137,17 +139,23 @@ class ItineraryTest {
         ItineraryRequest request = new ItineraryRequest(
                 user.getId(),
                 userCountry.getId(),
+                country.getId(),
                 "d",
                 LocalDate.now().plusDays(4),
                 LocalDate.now().plusDays(7),
                 "defd"
         );
-
-        ItineraryResponse response = itineraryService.create(request, user.getEmail(), user.getId());
+        //when
+        ItineraryResponse response = itineraryService.create(request, user.getEmail());
+        //then
         assertThat(response).isNotNull();
         assertThat(response.title()).isEqualTo("d");
         assertThat(response.description()).isEqualTo("defd");
 
+        //응답으로 받은 ID를 사용하여 지정된 여행 일정을 조회 (관심국가를 설정했을때 )
+        ItineraryResponse savedItinerary = itineraryService.findById(user.getEmail(),userCountry.getId());
+        assertThat(savedItinerary.userEmail()).isEqualTo(user.getEmail());
+        assertThat(savedItinerary.id()).isEqualTo(country.getId());
     }
 
 
@@ -231,6 +239,8 @@ class ItineraryTest {
         ItineraryRequest request = new ItineraryRequest(
                 continent.getId(),
                 alert.getId(),
+                //추가
+                country.getId(),
                 "title 수정",
                 LocalDate.now(),
                 LocalDate.now(),
@@ -272,6 +282,8 @@ class ItineraryTest {
         ItineraryRequest request2 = new ItineraryRequest(
                 user.getId(),
                 userCountry.getId(),
+                //추가
+                country.getId() ,
                 "d",
                 LocalDate.now().plusDays(4),
                 LocalDate.now().plusDays(7),

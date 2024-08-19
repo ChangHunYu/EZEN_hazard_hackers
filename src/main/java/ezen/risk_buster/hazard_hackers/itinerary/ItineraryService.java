@@ -35,7 +35,7 @@ public class ItineraryService {
 
     //일정생성
     @Transactional
-    public  ItineraryResponse create(ItineraryRequest request, String userEmail, Long countryId) {
+    public  ItineraryResponse create(ItineraryRequest request, String userEmail) {
 
         User user = userRepository.findByEmailAndIsDeletedFalse(userEmail);
         if (user == null) {
@@ -43,10 +43,10 @@ public class ItineraryService {
         }
 
         // UserCountry가 존재하는지 확인
-        UserCountry userCountry = userCountryRepostiory.findByUserAndCountry_Id(user, countryId).orElse(null);
+        UserCountry userCountry = userCountryRepostiory.findByUserAndCountry_Id(user, request.countryId()).orElse(null);
         if (userCountry == null) {
             // UserCountry가 존재하지 않으면 새로 생성
-            Country country = countryRepository.findByIdAndIsDeletedFalse(countryId);
+            Country country = countryRepository.findByIdAndIsDeletedFalse(request.countryId());
             userCountry = UserCountry.builder()
                     .user(user)
                     .country(country)
@@ -68,7 +68,7 @@ public class ItineraryService {
         return new ItineraryResponse(
                 itinerary.getId(),
                 itinerary.getUser().getEmail(),
-                itinerary.getUserCountry().getCountry().getCountryName(),
+                itinerary.getUserCountry().getCountry().getCountryEngName(),
                 itinerary.getTitle(),
                 itinerary.getStartDate(),
                 itinerary.getEndDate(),
@@ -120,7 +120,7 @@ public class ItineraryService {
         return itineraries.stream()
                 .map(i -> ItineraryResponse.builder()
                         .userEmail(i.getUser().getEmail())
-                        .userCountryName(i.getUserCountry().getCountry().getCountryName())
+                        .userCountryEngName(i.getUserCountry().getCountry().getCountryName())
                         .title(i.getTitle())
                         .description(i.getDescription())
                         .startDate(i.getStartDate())
@@ -160,7 +160,7 @@ public class ItineraryService {
         return ItineraryResponse.builder()
                 .id(updatedItinerary.getId())
                 .userEmail(updatedItinerary.getUser().getEmail())
-                .userCountryName(updatedItinerary.getUserCountry().getCountry().getCountryName())
+                .userCountryEngName(updatedItinerary.getUserCountry().getCountry().getCountryName())
                 .title(updatedItinerary.getTitle())
                 .startDate(updatedItinerary.getStartDate())
                 .endDate(updatedItinerary.getEndDate())
