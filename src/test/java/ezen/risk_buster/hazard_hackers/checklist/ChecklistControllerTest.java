@@ -2,18 +2,20 @@ package ezen.risk_buster.hazard_hackers.checklist;
 
 
 import ezen.risk_buster.hazard_hackers.common.auth.JwtProvider;
-
+import ezen.risk_buster.hazard_hackers.country.Continent;
+import ezen.risk_buster.hazard_hackers.country.ContinentRepository;
+import ezen.risk_buster.hazard_hackers.country.Country;
+import ezen.risk_buster.hazard_hackers.country.CountryRepository;
 import ezen.risk_buster.hazard_hackers.itinerary.Itinerary;
 import ezen.risk_buster.hazard_hackers.itinerary.ItineraryRepository;
-
 import ezen.risk_buster.hazard_hackers.user.User;
-
+import ezen.risk_buster.hazard_hackers.user.UserCountry;
+import ezen.risk_buster.hazard_hackers.user.UserCountryRepostiory;
 import ezen.risk_buster.hazard_hackers.user.UserRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,13 +25,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
-
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 @Sql("/truncate.sql")
 @ActiveProfiles("test")
@@ -42,19 +42,29 @@ class ChecklistControllerTest {
     UserRepository userRepository;
 
     @Autowired
-    ChecklistRepository checklistRepository;
+    ContinentRepository continentRepository;
+
+    @Autowired
+    CountryRepository countryRepository;
+
+    @Autowired
+    UserCountryRepostiory userCountryRepostiory;
 
     @Autowired
     ItineraryRepository itineraryRepository;
 
     @Autowired
+    ChecklistRepository checklistRepository;
+
+    @Autowired
     JwtProvider jwtProvider;  // JWT 토큰 생성을 위한 클래스
 
-
     static User testUser;
-    static Checklist testChecklist;
+    static Country country;
+    static Continent continent;
+    static UserCountry UserCountry;
     static Itinerary testItinerary;
-
+    static Checklist testChecklist;
 
     @BeforeEach
     void setUp() {
@@ -70,23 +80,71 @@ class ChecklistControllerTest {
                 Checklist.builder()
                         .user(testUser)
                         .title("Test Checklist")
-                        .build()
-        );
-        testChecklist = checklistRepository.save(
-                Checklist.builder()
-                        .user(testUser)
-                        .title("Test Checklist")
                         .items(new ArrayList<>())  // 빈 items 리스트 추가
                         .build()
         );
+        continent = continentRepository.save(Continent.builder()
+                .continentEngNm("asia")
+                .continentNm("아시아")
+                .build());
+        country = countryRepository.save(Country.builder()
+                .mapDownloadUrl("url")
+                .continent(continent)
+                .countryEngName("Korea")
+                .countryIsoAlp2("KR")
+                .countryName("한국")
+                .flagDownloadUrl("url")
+                .mapDownloadUrl("url")
+                .build());
+        UserCountry = userCountryRepostiory.save(UserCountry.builder()
+                .country(country)
+                .user(testUser)
+                .build());
         testItinerary = itineraryRepository.save(
                 Itinerary.builder()
                         .user(testUser)
                         .title("Test Itinerary")
                         .startDate(LocalDate.now())
                         .endDate(LocalDate.now().plusDays(7))
+                        .userCountry(UserCountry)
                         .build()
         );
+        testChecklist = checklistRepository.save(
+                Checklist.builder()
+                        .user(testUser)
+                        .itinerary(testItinerary)
+                        .title("Test Checklist")
+                        .build()
+        );
+    }
+
+    @Test
+    @DisplayName("체크리스트 단일 조회 테스트 - 일정 ID로 조회")
+    void getChecklistByItineraryIdWithJwtToken() {
+        // JWT 토큰 생성
+        String token = jwtProvider.createToken(testUser.getEmail());
+
+        // 체크리스트 조회 요청
+        ExtractableResponse<Response> response = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .when()
+                .get("/api/checklists/itinerary/" + testItinerary.getId())
+                .then().log().all()
+                .statusCode(200)
+                .extract();
+
+        ChecklistDto responseDto = response.as(ChecklistDto.class);
+
+        // 응답 검증
+        assertThat(responseDto).isNotNull();
+        assertThat(responseDto.id()).isEqualTo(testChecklist.getId());
+        assertThat(responseDto.title()).isEqualTo(testChecklist.getTitle());
+        assertThat(responseDto.userId()).isEqualTo(testUser.getId());
+        assertThat(responseDto.itineraryId()).isEqualTo(testItinerary.getId());
+        assertThat(responseDto.items()).isEmpty();
+        assertThat(responseDto.deleted()).isFalse();
     }
 
     @Test
@@ -402,45 +460,6 @@ class ChecklistControllerTest {
         assertThat(response.statusCode()).isEqualTo(204);  // Not Found
     }
 
-
-    @Test
-    @DisplayName("체크리스트 단일 조회 테스트 - 일정 ID로 조회")
-    void getChecklistByItineraryIdWithJwtToken() {
-        // 일정과 연결된 새로운 체크리스트 생성
-        Checklist checklistWithItinerary = checklistRepository.save(
-                Checklist.builder()
-                        .user(testUser)
-                        .itinerary(testItinerary)
-                        .title("Test Checklist with Itinerary")
-                        .items(new ArrayList<>())
-                        .build()
-        );
-
-        // JWT 토큰 생성
-        String token = jwtProvider.createToken(testUser.getEmail());
-
-        // 체크리스트 조회 요청
-        ExtractableResponse<Response> response = RestAssured
-                .given().log().all()
-                .contentType(ContentType.JSON)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .when()
-                .get("/api/checklists/itinerary/" + testItinerary.getId())
-                .then().log().all()
-                .statusCode(200)
-                .extract();
-
-        ChecklistDto responseDto = response.as(ChecklistDto.class);
-
-        // 응답 검증
-        assertThat(responseDto).isNotNull();
-        assertThat(responseDto.id()).isEqualTo(checklistWithItinerary.getId());
-        assertThat(responseDto.title()).isEqualTo(checklistWithItinerary.getTitle());
-        assertThat(responseDto.userId()).isEqualTo(testUser.getId());
-        assertThat(responseDto.itineraryId()).isEqualTo(testItinerary.getId());
-        assertThat(responseDto.items()).isEmpty();
-        assertThat(responseDto.deleted()).isFalse();
-    }
 }
 
 

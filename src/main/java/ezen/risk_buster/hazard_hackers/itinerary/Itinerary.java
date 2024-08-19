@@ -25,7 +25,7 @@ public class Itinerary extends BaseEntity {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "user_country_id", nullable = true)
+    @JoinColumn(name = "user_country_id", nullable = false)
     private UserCountry userCountry;
 
     @Column(nullable = false)
