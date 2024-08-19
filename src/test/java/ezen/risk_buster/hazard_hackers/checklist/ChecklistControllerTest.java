@@ -23,6 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -76,6 +77,34 @@ class ChecklistControllerTest {
                         .build()
         );
     }
+
+    @Test
+    @DisplayName("미리 정의된 체크리스트 생성 테스트 - TRAVEL 타입")
+    void createPredefinedChecklist_Essential() {
+        CheckListType checkListType = CheckListType.TRAVEL;
+
+        ExtractableResponse<Response> response = RestAssured
+                .given().log().all()
+                .contentType(ContentType.JSON)
+                .queryParam("userId", testUser.getId())
+                .queryParam("checkListType", checkListType)
+                .when()
+                .post("/api/checklists/predefined")
+                .then().log().all()
+                .statusCode(200)
+                .extract();
+
+        ChecklistDto createdChecklist = response.jsonPath().getObject("", ChecklistDto.class);
+        assertThat(createdChecklist.userId()).isEqualTo(testUser.getId());
+        assertThat(createdChecklist.title()).isEqualTo(checkListType.getTitle());
+        assertThat(createdChecklist.items()).hasSize(checkListType.getItems().size());
+
+        List<String> createdItemDescriptions = createdChecklist.items().stream()
+                .map(ItemDto::description)
+                .collect(Collectors.toList());
+        assertThat(createdItemDescriptions).containsExactlyElementsOf(checkListType.getItems());
+    }
+
 
     @Test
     @DisplayName("체크리스트 생성 테스트")
@@ -317,21 +346,6 @@ class ChecklistControllerTest {
         assertThat(unchangedChecklist.getTitle()).isEqualTo("Test Checklist");
     }
 
-//    @Test
-//    @DisplayName("권한 없는 사용자의 체크리스트 업데이트 시도 테스트")
-//    void updateChecklistWithoutPermission() {
-//        // ... (기존 코드)
-//
-//        // 데이터베이스에서 체크리스트를 조회하여 변경되지 않았음을 확인
-//        Checklist unchangedChecklist = entityManager.createQuery(
-//                        "SELECT c FROM Checklist c LEFT JOIN FETCH c.items WHERE c.id = :id", Checklist.class)
-//                .setParameter("id", testChecklist.getId())
-//                .getSingleResult();
-//
-//        assertThat(unchangedChecklist.getTitle()).isEqualTo("Test Checklist");
-//        assertThat(unchangedChecklist.getItems()).isEmpty();
-//    }
-
     @Test
     @DisplayName("JWT 토큰을 이용한 체크리스트 삭제 테스트")
     void deleteChecklistWithJwtToken() {
@@ -378,39 +392,6 @@ class ChecklistControllerTest {
         // 응답 검증
         assertThat(response.statusCode()).isEqualTo(204);  // Not Found
     }
-
-
-//    @Test
-//    @DispLayName("프로필 조회 테스트")
-//    void getcurrentser {
-//
-//        User저장된_유저= userRepositony.save（유저1);
-//        em. clear();
-//
-//        LoginRequest login = new LoginRequest (유저1. getEmail, rawPassword);
-//        ExtractableResponse<Response> extract = RestAssured
-//                .given().log().all()
-//                .contentType (ContentType.JSON)
-//                .body(login)
-//                .when()
-//                .post("/users/login")
-//                .then.log().all()
-//                .statusCode (200). extract();
-//        LoginResponse token = extract.as (LoginResponse.class);
-//
-//        ExtractableResponse<Response> extract1 = RestAssured
-//                .given().log().all
-//                .contentType (ContentType.JSON)
-//                .header (HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken())
-//                .body (login)
-//                .when ()
-//                .get("/users/me")
-//                .statusCode (200) .extractO:
-//        UserResponseDTO responseDTo = extract1.as(UserResponseDTO.class);
-//        Assertions.assertThat(responseDTO).isNotNulLO:
-//        Assertions.assertThat(responseDTO.name).isEqualTo(유저1.getUsernameO);
-//        Assertions.assertThat (responseDTO.email).isEqualTo(유저1.getEmait);
-//    }
 }
 
 

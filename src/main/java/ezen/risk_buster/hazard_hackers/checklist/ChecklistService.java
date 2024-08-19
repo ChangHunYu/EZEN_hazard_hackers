@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class ChecklistService {
@@ -24,6 +25,50 @@ public class ChecklistService {
 
     public ChecklistService(ChecklistRepository checklistRepository) {
         this.checklistRepository = checklistRepository;
+    }
+
+
+    @Transactional
+    public ChecklistDto createPredefinedChecklist(Long userId, CheckListType checkListType) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        Checklist checklist = Checklist.builder()
+                .user(user)
+                .title(checkListType.getTitle())
+                .items(new ArrayList<>())
+                .build();
+
+        List<Item> items = checkListType.getItems().stream()
+                .map(itemDescription -> Item.builder()
+                        .description(itemDescription)
+                        .isChecked(false)
+                        .checklist(checklist)
+                        .build())
+                .collect(Collectors.toList());
+
+        checklist.getItems().addAll(items);
+
+        Checklist savedChecklist = checklistRepository.save(checklist);
+
+        return new ChecklistDto(
+                savedChecklist.getId(),
+                savedChecklist.getUser().getId(),
+                savedChecklist.getTitle(),
+                savedChecklist.getItems().stream()
+                        .map(item -> new ItemDto(
+                                item.getId(),
+                                item.getIsChecked(),
+                                item.isDeleted(),
+                                savedChecklist.getId(),
+                                item.getCreatedAt(),
+                                item.getDeletedAt(),
+                                item.getUpdatedAt(),
+                                item.getDescription()
+                        ))
+                        .collect(Collectors.toList()),
+                savedChecklist.isDeleted()
+        );
     }
 
 
