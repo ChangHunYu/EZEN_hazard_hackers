@@ -51,7 +51,6 @@ public class ItineraryService {
                     .user(user)
                     .country(country)
                     .build();
-
             userCountry = userCountryRepostiory.save(userCountry);// 새 UserCountry 저장
         }
 
@@ -86,6 +85,7 @@ public class ItineraryService {
         //일정 검증
         Itinerary itinerary = itineraryRepository.findByIdAndIsDeletedFalse(id);
 
+
         if (itinerary == null) {
             throw new NoSuchElementException("id에 해당하는 일정이 없음");
         }
@@ -95,10 +95,11 @@ public class ItineraryService {
             throw new IllegalArgumentException("본인 일정이 아닙니다.");
         }
 
+
         return new ItineraryResponse(
                 itinerary.getId(),
                 itinerary.getUser().getEmail(),
-                itinerary.getUserCountry().getCountry().getCountryName(),
+                itinerary.getUserCountry().getCountry().getCountryEngName(),
                 itinerary.getTitle(),
                 itinerary.getStartDate(),
                 itinerary.getEndDate(),

@@ -137,7 +137,6 @@ class ItineraryTest {
     void createItinerary() {
         //로그인 후 토큰 발급
         ItineraryRequest request = new ItineraryRequest(
-                user.getId(),
                 userCountry.getId(),
                 country.getId(),
                 "d",
@@ -154,7 +153,7 @@ class ItineraryTest {
 
         //응답으로 받은 ID를 사용하여 지정된 여행 일정을 조회 (관심국가를 설정했을때 )
         ItineraryResponse savedItinerary = itineraryService.findById(user.getEmail(),userCountry.getId());
-        assertThat(savedItinerary.userEmail()).isEqualTo(user.getEmail());
+        assertThat(savedItinerary.id()).isEqualTo(userCountry.getId());
         assertThat(savedItinerary.id()).isEqualTo(country.getId());
     }
 
@@ -175,7 +174,7 @@ class ItineraryTest {
                 .statusCode(200).extract();
         LoginResponse token = extract1.as(LoginResponse.class);
 
-        //
+        //일정 조회API 호출
         ExtractableResponse<Response> extract = RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
@@ -187,6 +186,10 @@ class ItineraryTest {
         ItineraryResponse response = extract.as(ItineraryResponse.class);
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.title()).isEqualTo(itinerary.getTitle());
+
+        // 관심 국가 설정 검증 추가
+        Assertions.assertThat(response.userCountryEngName()).isNotNull();
+        Assertions.assertThat(response.userCountryEngName()).isEqualTo(itinerary.getUserCountry().getCountry().getCountryEngName());
     }
 
     @Test
@@ -237,8 +240,7 @@ class ItineraryTest {
 
         //일정 수정
         ItineraryRequest request = new ItineraryRequest(
-                continent.getId(),
-                alert.getId(),
+                userCountry.getId(),
                 //추가
                 country.getId(),
                 "title 수정",
@@ -280,9 +282,7 @@ class ItineraryTest {
         LoginResponse token = extract1.as(LoginResponse.class);
 
         ItineraryRequest request2 = new ItineraryRequest(
-                user.getId(),
                 userCountry.getId(),
-                //추가
                 country.getId() ,
                 "d",
                 LocalDate.now().plusDays(4),
