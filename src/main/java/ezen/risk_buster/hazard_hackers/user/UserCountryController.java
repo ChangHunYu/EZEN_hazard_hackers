@@ -53,4 +53,11 @@ public class UserCountryController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity delete(@PathVariable Long id) {
+        userCountryService.delete(id);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

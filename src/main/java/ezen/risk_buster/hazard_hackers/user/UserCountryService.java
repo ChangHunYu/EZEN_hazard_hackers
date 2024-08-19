@@ -122,4 +122,18 @@ public class UserCountryService {
                 updatedUserCountry.getCountry().getCountryName()
         );
     }
+
+    @Transactional
+    public void delete(String userEmail, Long id) {
+
+        User user = userRepository.findByEmailAndIsDeletedFalse(userEmail);
+        if (user == null) {
+            throw new IllegalArgumentException("해당 유저가 존재하지 않습니다. " + userEmail);
+        }
+
+        UserCountry userCountry = userCountryRepostiory.findByIdAndIsDeletedFalse(id);
+
+        userCountry.softDelete();
+        userCountryRepostiory.delete(userCountry);
+    }
 }
