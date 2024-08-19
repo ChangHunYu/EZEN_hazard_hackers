@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class ChecklistService {
@@ -24,6 +25,50 @@ public class ChecklistService {
 
     public ChecklistService(ChecklistRepository checklistRepository) {
         this.checklistRepository = checklistRepository;
+    }
+
+
+    @Transactional
+    public ChecklistDto createPredefinedChecklist(Long userId, CheckListType checkListType) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        Checklist checklist = Checklist.builder()
+                .user(user)
+                .title(checkListType.getTitle())
+                .items(new ArrayList<>())
+                .build();
+
+        List<Item> items = checkListType.getItems().stream()
+                .map(itemDescription -> Item.builder()
+                        .description(itemDescription)
+                        .isChecked(false)
+                        .checklist(checklist)
+                        .build())
+                .collect(Collectors.toList());
+
+        checklist.getItems().addAll(items);
+
+        Checklist savedChecklist = checklistRepository.save(checklist);
+
+        return new ChecklistDto(
+                savedChecklist.getId(),
+                savedChecklist.getUser().getId(),
+                savedChecklist.getTitle(),
+                savedChecklist.getItems().stream()
+                        .map(item -> new ItemDto(
+                                item.getId(),
+                                item.getIsChecked(),
+                                item.isDeleted(),
+                                savedChecklist.getId(),
+                                item.getCreatedAt(),
+                                item.getDeletedAt(),
+                                item.getUpdatedAt(),
+                                item.getDescription()
+                        ))
+                        .collect(Collectors.toList()),
+                savedChecklist.isDeleted()
+        );
     }
 
 
@@ -71,16 +116,14 @@ public class ChecklistService {
         );
     }
 
-    public List<ChecklistDto> getChecklistsByUserId(String userEmail, Long userId) {
+    public List<ChecklistDto> getChecklistsByUserId(String userEmail) {
         // 사용자 권한 검증
         User requestingUser = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("요청한 사용자를 찾을 수 없습니다."));
 
-        if (!requestingUser.getId().equals(userId)) {
-            throw new RuntimeException("다른 사용자의 체크리스트에 접근할 권한이 없습니다.");
-        }
 
-        List<Checklist> checklists = checklistRepository.findAllByUserId(userId);
+
+        List<Checklist> checklists = checklistRepository.findAllByUserEmailAndUserIsDeletedFalseAndIsDeletedFalse(userEmail);
         List<ChecklistDto> checklistDtos = checklists.stream()
                 .map(checklist -> new ChecklistDto(
                         checklist.getId(),

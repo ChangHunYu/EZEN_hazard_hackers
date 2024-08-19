@@ -20,6 +20,10 @@ public class Checklist extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne
+    @JoinColumn(name = "itinerary_id")
+    private Itinerary itinerary;
+
     @ManyToOne
     @JoinColumn(name = "users_id", nullable = false)
     private User user;
@@ -29,9 +33,6 @@ public class Checklist extends BaseEntity {
 
     @OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Item> items;
-
-    @OneToOne(mappedBy = "checklist")
-    private Itinerary itinerary;
 
     public void updateItinerary(Itinerary itinerary) {
         this.itinerary = itinerary;

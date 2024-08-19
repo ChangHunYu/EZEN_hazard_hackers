@@ -16,6 +16,14 @@ public class ChecklistController {
 
     private final ChecklistService checklistService;
 
+    @PostMapping("/predefined")
+    public ResponseEntity<ChecklistDto> createPredefinedChecklist(
+            @RequestParam Long userId,
+            @RequestParam CheckListType checkListType) {
+        ChecklistDto createdChecklist = checklistService.createPredefinedChecklist(userId, checkListType);
+        return ResponseEntity.ok(createdChecklist);
+    }
+
     @PostMapping
     public ChecklistDto createChecklist(@RequestParam Long userId, @RequestParam String title) {
         Checklist checklist = checklistService.createChecklist(userId, title);
@@ -29,9 +37,9 @@ public class ChecklistController {
         return checklistService.getChecklist(userEmail, checklistId);
     }
 
-    @GetMapping("/user/{userId}")
-    public List<ChecklistDto> getChecklistsByUserId(@LoginUser String userEmail, @PathVariable Long userId) {
-        return checklistService.getChecklistsByUserId(userEmail, userId);
+    @GetMapping
+    public List<ChecklistDto> getChecklistsByUserId(@LoginUser String userEmail) {
+        return checklistService.getChecklistsByUserId(userEmail);
     }
 
     @PutMapping("/{checklistId}")
@@ -44,6 +52,4 @@ public class ChecklistController {
         checklistService.deleteChecklist(checklistId);
         return ResponseEntity.noContent().build();
     }
-
-
 }
