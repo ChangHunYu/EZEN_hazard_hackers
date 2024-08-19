@@ -55,8 +55,8 @@ public class UserCountryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity delete(@PathVariable Long id) {
-        userCountryService.delete(id);
+    public ResponseEntity delete(@LoginUser String userEmail, @PathVariable Long id) {
+        userCountryService.delete(userEmail, id);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
