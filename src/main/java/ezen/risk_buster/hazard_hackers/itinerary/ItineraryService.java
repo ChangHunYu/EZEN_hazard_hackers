@@ -66,13 +66,13 @@ public class ItineraryService {
                 .startDate(request.startDate())
                 .endDate(request.endDate())
                 .build();
-        String cheklistTitle = itinerary.getUserCountry() +
+        String cheklistTitle = itinerary.getUserCountry().getCountry().getCountryName() +
                 " 여행 (" +
                 itinerary.getStartDate() +
                 " ~ " +
                 itinerary.getEndDate() + " )";
         Checklist checklist = checklistService.createChecklist(user.getId(), cheklistTitle);
-        itinerary.addCheklist(checklist);
+        itinerary.addChecklist(checklist);
         itinerary = itineraryRepository.save(itinerary);
 
         return new ItineraryResponse(

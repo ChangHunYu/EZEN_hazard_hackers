@@ -93,20 +93,11 @@ class ItineraryTest {
                         .username("test")
                         .password(hasedPassword1)
                 .build());
-        alert = alertRepository.save(Alert.builder()
-                .level(1L)
-                .dangMapDownloadUrl("url")
-                .description("alert")
-                .remark("test")
-                .message("alert")
-                .regionType("test")
-                .build());
         continent = continentRepository.save(Continent.builder()
                 .continentEngNm("asia")
                 .continentNm("아시아")
                 .build());
         country = countryRepository.save(Country.builder()
-                        .alertList(List.of(alert))
                         .mapDownloadUrl("url")
                         .continent(continent)
                         .countryEngName("Korea")
@@ -114,6 +105,15 @@ class ItineraryTest {
                         .countryName("한국")
                         .flagDownloadUrl("url")
                         .mapDownloadUrl("url")
+                .build());
+        alert = alertRepository.save(Alert.builder()
+                        .country(country)
+                .level(1L)
+                .dangMapDownloadUrl("url")
+                .description("alert")
+                .remark("test")
+                .message("alert")
+                .regionType("test")
                 .build());
 
         userCountry = userCountryRepostiory.save(UserCountry.builder()
@@ -153,9 +153,9 @@ class ItineraryTest {
         assertThat(response.description()).isEqualTo("defd");
 
         //응답으로 받은 ID를 사용하여 지정된 여행 일정을 조회 (관심국가를 설정했을때 )
-        ItineraryResponse savedItinerary = itineraryService.findById(user.getEmail(),userCountry.getId());
-        assertThat(savedItinerary.id()).isEqualTo(userCountry.getId());
-        assertThat(savedItinerary.id()).isEqualTo(country.getId());
+        ItineraryResponse savedItinerary = itineraryService.findById(user.getEmail(),response.id());
+        assertThat(savedItinerary.id()).isEqualTo(response.id());
+        assertThat(savedItinerary.userCountryEngName()).isEqualTo(response.userCountryEngName());
     }
 
 
@@ -188,9 +188,6 @@ class ItineraryTest {
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.title()).isEqualTo(itinerary.getTitle());
 
-        // 관심 국가 설정 검증 추가
-        Assertions.assertThat(response.userCountryEngName()).isNotNull();
-        Assertions.assertThat(response.userCountryEngName()).isEqualTo(itinerary.getUserCountry().getCountry().getCountryEngName());
     }
 
     @Test
@@ -242,7 +239,6 @@ class ItineraryTest {
         //일정 수정
         ItineraryRequest request = new ItineraryRequest(
                 userCountry.getId(),
-                //추가
                 country.getId(),
                 "title 수정",
                 LocalDate.now(),

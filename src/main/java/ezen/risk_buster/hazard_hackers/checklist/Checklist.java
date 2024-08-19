@@ -30,7 +30,10 @@ public class Checklist extends BaseEntity {
     @OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Item> items;
 
-    @OneToOne
-    @JoinColumn(name = "itinerary_id")
+    @OneToOne(mappedBy = "checklist")
     private Itinerary itinerary;
+
+    public void updateItinerary(Itinerary itinerary) {
+        this.itinerary = itinerary;
+    }
 }

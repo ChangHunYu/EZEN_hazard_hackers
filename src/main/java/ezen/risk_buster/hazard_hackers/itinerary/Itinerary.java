@@ -39,7 +39,8 @@ public class Itinerary extends BaseEntity {
 
     private String description;
 
-    @OneToOne(mappedBy = "itinerary", cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "checklist_id")
     private Checklist checklist;
 
 
@@ -51,7 +52,10 @@ public class Itinerary extends BaseEntity {
         this.description = request.description();
     }
 
-    public void addCheklist(Checklist checklist) {
+    public void addChecklist(Checklist checklist) {
         this.checklist = checklist;
+        if (checklist != null) {
+            checklist.updateItinerary(this);
+        }
     }
 }
