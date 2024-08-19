@@ -271,7 +271,7 @@ class ChecklistControllerTest {
                 .contentType(ContentType.JSON)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .when()
-                .get("/api/checklists/user/" + testUser.getId())
+                .get("/api/checklists")
                 .then().log().all()
                 .statusCode(200)
                 .extract();

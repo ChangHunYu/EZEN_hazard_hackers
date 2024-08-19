@@ -34,7 +34,6 @@ public class ChecklistController {
         return ResponseEntity.ok(createdChecklist);
     }
 
-
     @PostMapping
     public ChecklistDto createChecklist(@RequestParam Long userId, @RequestParam String title) {
         Checklist checklist = checklistService.createChecklist(userId, title);
@@ -60,9 +59,10 @@ public class ChecklistController {
     }
 
 
-    @GetMapping("/user/{userId}")
-    public List<ChecklistDto> getChecklistsByUserId(@LoginUser String userEmail, @PathVariable Long userId) {
-        return checklistService.getChecklistsByUserId(userEmail, userId);
+
+    @GetMapping
+    public List<ChecklistDto> getChecklistsByUserId(@LoginUser String userEmail) {
+        return checklistService.getChecklistsByUserId(userEmail);
     }
 
 
