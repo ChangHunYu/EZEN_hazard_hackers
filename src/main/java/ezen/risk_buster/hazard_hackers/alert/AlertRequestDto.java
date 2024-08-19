@@ -13,8 +13,7 @@ public record AlertRequestDto(
         String description,
         String regionType,
         String remark,
-        @NotNull String dang_map_download_url
-        String dang_map_download_url,
+        @NotNull String dang_map_download_url,
         LocalDate written_dt
 ) {
 }

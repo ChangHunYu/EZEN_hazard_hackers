@@ -42,6 +42,15 @@ public class UserCountryController {
         UserCountryResponseDto responseDto = userCountryService.findOne(userEmail, id);
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<UserCountryResponseDto> update(
+            @LoginUser String userEmail,
+            @PathVariable Long id,
+            @RequestBody UserCountryRequestDto request) {
+        UserCountryResponseDto responseDto = userCountryService.update(userEmail ,id, request);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }

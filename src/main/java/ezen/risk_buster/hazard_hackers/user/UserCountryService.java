@@ -79,13 +79,47 @@ public class UserCountryService {
             throw new IllegalArgumentException("해당 유저가 존재하지 않습니다. " + userEmail);
         }
 
-        UserCountry userCountry = userCountryRepostiory.findByUser_IdAndIsDeleteFalse(userEmail, id);
+        UserCountry userCountry = userCountryRepostiory.findByIdAndIsDeletedFalse(id);
 
         return new UserCountryResponseDto(
                 userCountry.getId(),
                 userCountry.getUser().getEmail(),
                 userCountry.getCountry().getId(),
                 userCountry.getCountry().getCountryName()
+        );
+    }
+
+    @Transactional
+    public UserCountryResponseDto update(String userEmail, Long id, UserCountryRequestDto request) {
+
+        User user = userRepository.findByEmailAndIsDeletedFalse(userEmail);
+        if (user == null) {
+            throw new IllegalArgumentException("해당 유저가 존재하지 않습니다. " + userEmail);
+        }
+        if (!user.getEmail().equals(request.email())) {
+            throw new IllegalArgumentException("잘못된 유저 email: " + request.email());
+        }
+
+        Country country = countryRepository.findByIdAndIsDeletedFalse(request.countryId());
+        if (country == null) {
+            throw new IllegalArgumentException("해당 국가가 존재하지 않습니다. " + request.countryId());
+        }
+        if (!country.getId().equals(request.countryId())) {
+            throw new IllegalArgumentException("잘못된 국가 country: " + request.countryId());
+        }
+
+        UserCountry userCountry = UserCountry.builder()
+                .user(user)
+                .country(country)
+                .build();
+
+        UserCountry updatedUserCountry = userCountryRepostiory.save(userCountry);
+
+        return new UserCountryResponseDto(
+                updatedUserCountry.getId(),
+                updatedUserCountry.getUser().getEmail(),
+                updatedUserCountry.getCountry().getId(),
+                updatedUserCountry.getCountry().getCountryName()
         );
     }
 }
