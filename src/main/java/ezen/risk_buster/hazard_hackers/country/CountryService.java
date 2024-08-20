@@ -7,6 +7,7 @@ import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CountryService {
@@ -46,7 +47,9 @@ public class CountryService {
 
     public List<CountryListResponse> findAll() {
         List<Country> countries = countryRepository.findAll();
-        return countries.stream().map(CountryListResponse::of).toList();
+        return countries.stream().map(CountryListResponse::of)
+                .sorted((c1, c2) -> c1.countryName().compareTo(c2.countryName()))
+                .toList();
     }
 
     @Transactional
