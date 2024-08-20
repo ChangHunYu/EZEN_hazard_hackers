@@ -1,13 +1,12 @@
 package ezen.risk_buster.hazard_hackers.itinerary;
 
+import ezen.risk_buster.hazard_hackers.checklist.*;
 import ezen.risk_buster.hazard_hackers.country.Country;
 import ezen.risk_buster.hazard_hackers.country.CountryRepository;
 import ezen.risk_buster.hazard_hackers.user.User;
 import ezen.risk_buster.hazard_hackers.user.UserCountry;
 import ezen.risk_buster.hazard_hackers.user.UserCountryRepostiory;
 import ezen.risk_buster.hazard_hackers.user.UserRepository;
-import ezen.risk_buster.hazard_hackers.checklist.Checklist;
-import ezen.risk_buster.hazard_hackers.checklist.ChecklistService;
 import ezen.risk_buster.hazard_hackers.user.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -27,13 +26,16 @@ public class ItineraryService {
     private final UserCountryRepostiory userCountryRepostiory;
     private final CountryRepository countryRepository;
     private final ChecklistService checklistService;
+    private final ChecklistRepository checklistRepository;
 
-    public ItineraryService(ItineraryRepository itineraryRepository, UserRepository userRepository, UserCountryRepostiory userCountryRepostiory, ChecklistService checklistService, CountryRepository countryRepository) {
+    public ItineraryService(ItineraryRepository itineraryRepository, UserRepository userRepository, UserCountryRepostiory userCountryRepostiory, ChecklistService checklistService, CountryRepository countryRepository,
+                            ChecklistRepository checklistRepository) {
         this.itineraryRepository = itineraryRepository;
         this.userRepository = userRepository;
         this.userCountryRepostiory = userCountryRepostiory;
         this.countryRepository = countryRepository;
         this.checklistService = checklistService;
+        this.checklistRepository = checklistRepository;
     }
 
 
@@ -71,7 +73,8 @@ public class ItineraryService {
                 itinerary.getStartDate() +
                 " ~ " +
                 itinerary.getEndDate() + " )";
-        Checklist checklist = checklistService.createChecklist(user.getId(), cheklistTitle);
+        ChecklistDto checklistDto = checklistService.createPredefinedChecklist(user.getEmail(), CheckListType.TRAVEL);
+        Checklist checklist = checklistRepository.findById(checklistDto.id()).orElse(null);
         itinerary.addChecklist(checklist);
         itinerary = itineraryRepository.save(itinerary);
 
