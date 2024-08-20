@@ -49,7 +49,7 @@ public class ItemTest {
     private Item item1;
     private Item item2;
 
-    static Checklist checklist;
+    public static Checklist checklist;
     static User user;
 
     @BeforeEach

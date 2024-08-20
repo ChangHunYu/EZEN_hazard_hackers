@@ -206,4 +206,12 @@ public class ItineraryService {
         itineraryRepository.save(deleteItinerary);
     }
 
+    public Itinerary createItinerary(User user, String title) {
+        Itinerary itinerary = Itinerary.builder()
+                .user(user)
+                .title(title)
+                .build();
+        return itineraryRepository.save(itinerary);
+    }
+
 }

@@ -1,14 +1,18 @@
 package ezen.risk_buster.hazard_hackers.checklist;
 
+import ezen.risk_buster.hazard_hackers.itinerary.Itinerary;
+import ezen.risk_buster.hazard_hackers.itinerary.ItineraryRepository;
 import ezen.risk_buster.hazard_hackers.user.User;
 import ezen.risk_buster.hazard_hackers.user.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class ChecklistService {
@@ -20,10 +24,101 @@ public class ChecklistService {
     private UserRepository userRepository;
 
     @Autowired
+    private ItineraryRepository itineraryRepository;
+
+    @Autowired
     private ItemRepository itemRepository;
 
+    @Autowired
     public ChecklistService(ChecklistRepository checklistRepository) {
         this.checklistRepository = checklistRepository;
+    }
+
+    public ChecklistDto getChecklistByItineraryId(String userEmail, Long itineraryId) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + userEmail));
+
+        Checklist checklist = checklistRepository.findByItinerary_Id(itineraryId);
+
+        if (checklist == null) {
+            return null;
+        }
+
+        // 사용자 권한 확인
+        if (!checklist.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("User does not have permission to access this checklist");
+        }
+
+        return mapToChecklistDto(checklist);
+    }
+    private ChecklistDto mapToChecklistDto(Checklist checklist) {
+        return new ChecklistDto(
+                checklist.getId(),
+                checklist.getUser().getId(),
+                checklist.getItinerary() != null ? checklist.getItinerary().getId() : null,
+                checklist.getTitle(),
+                mapToItemDtos(checklist),
+                checklist.isDeleted()
+        );
+    }
+
+    private List<ItemDto> mapToItemDtos(Checklist checklist) {
+        return checklist.getItems().stream()
+                .map(item -> new ItemDto(
+                        item.getId(),
+                        item.getIsChecked(),
+                        item.isDeleted(),
+                        checklist.getId(),
+                        item.getCreatedAt(),
+                        item.getDeletedAt(),
+                        item.getUpdatedAt(),
+                        item.getDescription()
+                ))
+                .collect(Collectors.toList());
+    }
+
+
+    @Transactional
+    public ChecklistDto createPredefinedChecklist(Long userId, CheckListType checkListType) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        Checklist checklist = Checklist.builder()
+                .user(user)
+                .title(checkListType.getTitle())
+                .items(new ArrayList<>())
+                .build();
+
+        List<Item> items = checkListType.getItems().stream()
+                .map(itemDescription -> Item.builder()
+                        .description(itemDescription)
+                        .isChecked(false)
+                        .checklist(checklist)
+                        .build())
+                .collect(Collectors.toList());
+
+        checklist.getItems().addAll(items);
+
+        Checklist savedChecklist = checklistRepository.save(checklist);
+
+        return new ChecklistDto(
+                savedChecklist.getId(),
+                savedChecklist.getUser().getId(),
+                savedChecklist.getTitle(),
+                savedChecklist.getItems().stream()
+                        .map(item -> new ItemDto(
+                                item.getId(),
+                                item.getIsChecked(),
+                                item.isDeleted(),
+                                savedChecklist.getId(),
+                                item.getCreatedAt(),
+                                item.getDeletedAt(),
+                                item.getUpdatedAt(),
+                                item.getDescription()
+                        ))
+                        .collect(Collectors.toList()),
+                savedChecklist.isDeleted()
+        );
     }
 
 
@@ -71,16 +166,14 @@ public class ChecklistService {
         );
     }
 
-    public List<ChecklistDto> getChecklistsByUserId(String userEmail, Long userId) {
+    public List<ChecklistDto> getChecklistsByUserId(String userEmail) {
         // 사용자 권한 검증
         User requestingUser = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("요청한 사용자를 찾을 수 없습니다."));
 
-        if (!requestingUser.getId().equals(userId)) {
-            throw new RuntimeException("다른 사용자의 체크리스트에 접근할 권한이 없습니다.");
-        }
 
-        List<Checklist> checklists = checklistRepository.findAllByUserId(userId);
+
+        List<Checklist> checklists = checklistRepository.findAllByUserEmailAndUserIsDeletedFalseAndIsDeletedFalse(userEmail);
         List<ChecklistDto> checklistDtos = checklists.stream()
                 .map(checklist -> new ChecklistDto(
                         checklist.getId(),
@@ -103,6 +196,7 @@ public class ChecklistService {
 
         return checklistDtos;
     }
+
 
     @Transactional
     public ChecklistDto updateChecklist(String userEmail, Long checklistId, ChecklistUpdateDto request) {
