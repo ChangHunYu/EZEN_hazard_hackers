@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class UserCountryService {
@@ -54,7 +55,7 @@ public class UserCountryService {
         );
     }
 
-    public List<UserCountryResponseDto> findAll(String userEmail) {
+    public List<UserCountryResponseDto> findAll(String userEmail, String userCountryEngName) {
 
         User user = userRepository.findByEmailAndIsDeletedFalse(userEmail);
         if (user == null) {
@@ -62,6 +63,10 @@ public class UserCountryService {
         }
 
         List<UserCountry> userCountries = userCountryRepostiory.findByUser_EmailAndIsDeletedFalse(userEmail);
+
+        if (userCountryEngName != null) {
+            userCountries = userCountries.stream().filter(userCountry -> userCountry.getCountry().getCountryEngName().equals(userCountryEngName)).toList();
+        }
 
         return userCountries.stream().map(
                 userCountry -> new UserCountryResponseDto(

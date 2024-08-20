@@ -1,8 +1,11 @@
 package ezen.risk_buster.hazard_hackers.checklist;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.List;
 
+@Getter
 public enum CheckListType {
     TRAVEL("여행 준비 체크리스트", Arrays.asList(
             "여권",
@@ -26,11 +29,4 @@ public enum CheckListType {
         this.items = items;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public List<String> getItems() {
-        return items;
-    }
 }

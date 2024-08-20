@@ -18,20 +18,15 @@ import java.util.stream.Collectors;
 public class ChecklistService {
 
     @Autowired
-    private ChecklistRepository checklistRepository;
+    private final ChecklistRepository checklistRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    private ItineraryRepository itineraryRepository;
-
-    @Autowired
-    private ItemRepository itemRepository;
-
-    @Autowired
-    public ChecklistService(ChecklistRepository checklistRepository) {
+    public ChecklistService(ChecklistRepository checklistRepository, UserRepository userRepository) {
         this.checklistRepository = checklistRepository;
+        this.userRepository = userRepository;
     }
 
     public ChecklistDto getChecklistByItineraryId(String userEmail, Long itineraryId) {
@@ -79,9 +74,11 @@ public class ChecklistService {
 
 
     @Transactional
-    public ChecklistDto createPredefinedChecklist(Long userId, CheckListType checkListType) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    public ChecklistDto createPredefinedChecklist(String userEmail, CheckListType checkListType) {
+        User user = userRepository.findByEmailAndIsDeletedFalse(userEmail);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found");
+        }
 
         Checklist checklist = Checklist.builder()
                 .user(user)
@@ -95,7 +92,7 @@ public class ChecklistService {
                         .isChecked(false)
                         .checklist(checklist)
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         checklist.getItems().addAll(items);
 
@@ -122,9 +119,11 @@ public class ChecklistService {
     }
 
 
-    public Checklist createChecklist(Long userId, String title) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    public Checklist createChecklist(String userEmail, String title) {
+        User user = userRepository.findByEmailAndIsDeletedFalse(userEmail);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found");
+        }
         Checklist checklist = Checklist.builder()
                 .user(user)
                 .title(title)

@@ -29,8 +29,8 @@ public class UserCountryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserCountryResponseDto>> findAll(@LoginUser String userEmail) {
-        List<UserCountryResponseDto> responseDtos = userCountryService.findAll(userEmail);
+    public ResponseEntity<List<UserCountryResponseDto>> findAll(@LoginUser String userEmail, @RequestParam(required = false) String userCountryEngName) {
+        List<UserCountryResponseDto> responseDtos = userCountryService.findAll(userEmail, userCountryEngName);
 
         return new ResponseEntity<>(responseDtos, HttpStatus.OK);
     }
