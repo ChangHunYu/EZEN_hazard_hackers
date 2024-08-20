@@ -28,15 +28,15 @@ public class ChecklistController {
 
     @PostMapping("/predefined")
     public ResponseEntity<ChecklistDto> createPredefinedChecklist(
-            @RequestParam Long userId,
+            @LoginUser String userEmail,
             @RequestParam CheckListType checkListType) {
-        ChecklistDto createdChecklist = checklistService.createPredefinedChecklist(userId, checkListType);
+        ChecklistDto createdChecklist = checklistService.createPredefinedChecklist(userEmail, checkListType);
         return ResponseEntity.ok(createdChecklist);
     }
 
     @PostMapping
-    public ChecklistDto createChecklist(@RequestParam Long userId, @RequestParam String title) {
-        Checklist checklist = checklistService.createChecklist(userId, title);
+    public ChecklistDto createChecklist(@LoginUser String userEmail, @RequestParam String title) {
+        Checklist checklist = checklistService.createChecklist(userEmail, title);
         ChecklistDto checklistDto = new ChecklistDto(checklist.getId(), checklist.getUser().getId(), checklist
                 .getTitle(), new ArrayList<>(), checklist.isDeleted());
         return checklistDto;

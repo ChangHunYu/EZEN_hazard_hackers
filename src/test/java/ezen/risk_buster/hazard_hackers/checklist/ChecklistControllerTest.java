@@ -150,12 +150,14 @@ class ChecklistControllerTest {
     @Test
     @DisplayName("미리 정의된 체크리스트 생성 테스트 - TRAVEL 타입")
     void createPredefinedChecklist_Essential() {
+        // JWT 토큰 생성
+        String token = jwtProvider.createToken(testUser.getEmail());
         CheckListType checkListType = CheckListType.TRAVEL;
 
         ExtractableResponse<Response> response = RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
-                .queryParam("userId", testUser.getId())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .queryParam("checkListType", checkListType)
                 .when()
                 .post("/api/checklists/predefined")
@@ -178,11 +180,13 @@ class ChecklistControllerTest {
     @Test
     @DisplayName("체크리스트 생성 테스트")
     void createChecklist() {
+        // JWT 토큰 생성
+        String token = jwtProvider.createToken(testUser.getEmail());
         String newTitle = "New Test Checklist";
         ExtractableResponse<Response> response = RestAssured
                 .given().log().all()
                 .contentType(ContentType.JSON)
-                .queryParam("userId", testUser.getId())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .queryParam("title", newTitle)
                 .when()
                 .post("/api/checklists")
