@@ -81,3 +81,9 @@ DataPipeline/**/.ipynb_checkpoints
 # Python specific logs and SQLite files
 DataPipeline/*.log
 DataPipeline/*.sqlite3
+
+# Ignore the entire .idea directory
+DataPipeline/.idea/
+
+# Optional: Include specific files if needed (e.g., version control settings)
+# !DataPipeline/.idea/vcs.xml
