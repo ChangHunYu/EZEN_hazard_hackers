@@ -68,13 +68,18 @@ public class ItineraryService {
                 .startDate(request.startDate())
                 .endDate(request.endDate())
                 .build();
-        String cheklistTitle = itinerary.getUserCountry().getCountry().getCountryName() +
-                " 여행 (" +
-                itinerary.getStartDate() +
-                " ~ " +
-                itinerary.getEndDate() + " )";
+        String cheklistTitle = itinerary.getUserCountry().getCountry().getCountryName();
+//        String cheklistTitle = itinerary.getUserCountry().getCountry().getCountryName() +
+//                " 여행 (" +
+//                itinerary.getStartDate() +
+//                " ~ " +
+//                itinerary.getEndDate() + " )";
         ChecklistDto checklistDto = checklistService.createPredefinedChecklist(user.getEmail(), CheckListType.TRAVEL);
         Checklist checklist = checklistRepository.findById(checklistDto.id()).orElse(null);
+        checklist.updateTitle(cheklistTitle);
+        checklist = checklistRepository.save(checklist);
+
+
         itinerary.addChecklist(checklist);
         itinerary = itineraryRepository.save(itinerary);
 
@@ -206,6 +211,7 @@ public class ItineraryService {
         }
 
         deleteItinerary.softDelete();
+        deleteItinerary.getChecklist().softDelete();
         itineraryRepository.save(deleteItinerary);
     }
 

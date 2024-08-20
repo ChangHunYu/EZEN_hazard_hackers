@@ -31,12 +31,11 @@ public class Checklist extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
+    @Builder.Default
     @OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Item> items = new ArrayList<>();
 
-    private boolean isDeleted;
-
-
+    public void updateTitle(String title) { this.title = title;}
 
     public void updateItinerary(Itinerary itinerary) {
         this.itinerary = itinerary;
