@@ -7,7 +7,7 @@ import java.time.LocalDate;
 @Builder
 public record AlertResponseDto(
         Long id,
-        String countryEngName,
+        String countryName,
         Long level,
         String message,
         String description,
