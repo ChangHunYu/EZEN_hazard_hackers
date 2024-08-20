@@ -38,7 +38,7 @@ public class AlertService {
         Alert savedAlert = alertRepository.save(alert);
 
         return AlertResponseDto.builder()
-                .countryEngName(savedAlert.getCountry().getCountryEngName())
+                .countryName(savedAlert.getCountry().getCountryName())
                 .id(savedAlert.getId())
                 .level(savedAlert.getLevel())
                 .message(savedAlert.getMessage())
@@ -65,7 +65,7 @@ public class AlertService {
         return alerts.stream()
             .map(a -> AlertResponseDto.builder()
                     .id(a.getId())
-                    .countryEngName(a.getCountry().getCountryEngName())
+                    .countryName(a.getCountry().getCountryName())
                     .level(a.getLevel())
                     .message(a.getMessage())
                     .description(a.getDescription())
@@ -89,7 +89,7 @@ public class AlertService {
         }
 
         return AlertResponseDto.builder()
-                .countryEngName(alert.getCountry().getCountryEngName())
+                .countryName(alert.getCountry().getCountryName())
                 .id(alert.getId())
                 .level(alert.getLevel())
                 .message(alert.getMessage())
@@ -116,7 +116,7 @@ public class AlertService {
         Alert savedAlert = alertRepository.save(alert);
 
         return AlertResponseDto.builder()
-                .countryEngName(savedAlert.getCountry().getCountryEngName())
+                .countryName(savedAlert.getCountry().getCountryName())
                 .id(savedAlert.getId())
                 .level(savedAlert.getLevel())
                 .message(savedAlert.getMessage())
