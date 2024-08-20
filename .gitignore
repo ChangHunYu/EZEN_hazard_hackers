@@ -1,38 +1,89 @@
-HELP.md
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+# Root level ignore rules
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+# Miscellaneous
+.DS_Store
+*.pem
+*.log
+
+# Local environment files
+.env
+.env*.local
+
+# Vercel deployment config
+.vercel
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# VS Code settings
+.vscode/
+
+# Frontend (Next.js, Tailwind, TypeScript) ignore rules
+Frontend/node_modules
+Frontend/.pnp
+Frontend.pnp.js
+Frontend/coverage
+Frontend/.next/
+Frontend/out/
+Frontend/build
+
+# TypeScript specific
+Frontend/*.tsbuildinfo
+Frontend/next-env.d.ts
+
+# Backend (Spring Boot) ignore rules
+Backend/.gradle
+Backend/build/
+!Backend/gradle/wrapper/gradle-wrapper.jar
+!Backend/**/src/main/**/build/
+!Backend/**/src/test/**/build/
+
+### STS (Spring Tool Suite) ###
+Backend/.apt_generated
+Backend/.classpath
+Backend/.factorypath
+Backend/.project
+Backend/.settings
+Backend/.springBeans
+Backend/.sts4-cache
+Backend/bin/
+!Backend/**/src/main/**/bin/
+!Backend/**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea/
-*.iws
-*.iml
-*.xml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+Backend/.idea/
+Backend/*.iws
+Backend/*.iml
+Backend/*.xml
+Backend/*.ipr
+Backend/out/
+!Backend/**/src/main/**/out/
+!Backend/**/src/test/**/out/
 
 ### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+Backend/nbproject/private/
+Backend/nbbuild/
+Backend/dist/
+Backend/nbdist/
+Backend/.nb-gradle/
 
-### VS Code ###
-.vscode/
+# DataPipeline (Python, Jupyter) ignore rules
+DataPipeline/__pycache__/
+DataPipeline/*.py[cod]
+DataPipeline/venv/
+DataPipeline/.env/
+DataPipeline/*.env/
+DataPipeline/**/.ipynb_checkpoints
+
+# Python specific logs and SQLite files
+DataPipeline/*.log
+DataPipeline/*.sqlite3
+
+# Ignore the entire .idea directory
+DataPipeline/.idea/
+
+# Optional: Include specific files if needed (e.g., version control settings)
+# !DataPipeline/.idea/vcs.xml
